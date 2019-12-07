@@ -1,4 +1,5 @@
 const std = @import("std");
+const assert = std.debug.assert;
 
 const Digit = usize;
 
@@ -25,6 +26,12 @@ fn valid(pw: usize) bool {
         }
     }
     return found_double;
+}
+
+test "tests from website" {
+    assert(valid(111111));
+    assert(!valid(223450));
+    assert(!valid(123789));
 }
 
 pub fn main() void {
