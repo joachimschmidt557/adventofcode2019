@@ -17,6 +17,10 @@ const Point = struct {
     pub fn eql(a: Self, b: Self) bool {
         return a.x == b.x and a.y == b.y;
     }
+
+    pub fn flip(self: Self) Self {
+        return Self{ .x = self.y, .y = self.x };
+    }
 };
 
 const Direction = enum {
@@ -46,66 +50,221 @@ const Instruction = struct {
     }
 };
 
+const TwoDir = enum {
+    Vertical,
+    Horizontal,
+};
+
+const Line = struct {
+    start: Point,
+    end: Point,
+
+    const Self = @This();
+
+    pub const IntersectError = Allocator.Error;
+
+    pub fn intersect(alloc: *Allocator, a: Self, b: Self) IntersectError![]Point {
+        var result = ArrayList(Point).init(alloc);
+        const dir_a = if (a.start.x == a.end.x) TwoDir.Vertical else TwoDir.Horizontal;
+        const dir_b = if (b.start.x == b.end.x) TwoDir.Vertical else TwoDir.Horizontal;
+
+        // Parallel
+        if (dir_a == TwoDir.Vertical and dir_b == TwoDir.Vertical) {
+            // They need to have same x, otherwise it's impossible
+            // to have an intersection
+            if (a.start.x == b.start.x) {
+                const a_bot_p = if (a.start.y < a.end.y) a.start else a.end;
+                const a_top_p = if (a.start.y < a.end.y) a.end else a.start;
+                const b_bot_p = if (b.start.y < b.end.y) b.start else b.end;
+                const b_top_p = if (b.start.y < b.end.y) b.end else b.start;
+
+                if (a_top_p.y > b_top_p.y) {
+                    const start_y = b_top_p.y;
+                    const end_y = a_bot_p.y;
+
+                    var i: i32 = start_y;
+                    while (i >= end_y) : (i -= 1) {
+                        try result.append(Point{ .x = a_bot_p.x, .y = i });
+                    }
+                } else {
+                    const start_y = a_top_p.y;
+                    const end_y = b_bot_p.y;
+
+                    var i: i32 = start_y;
+                    while (i >= end_y) : (i -= 1) {
+                        try result.append(Point{ .x = a_bot_p.x, .y = i });
+                    }
+                }
+            }
+        } else if (dir_a == TwoDir.Horizontal and dir_b == TwoDir.Horizontal) {
+            // Flip x and y
+            try result.appendSlice(try Self.intersect(alloc,
+                Self{ .start = a.start.flip(), .end = a.end.flip() },
+                Self{ .start = b.start.flip(), .end = b.end.flip() }));
+        }
+        // Crossed
+        else if (dir_a == TwoDir.Vertical and dir_b == TwoDir.Horizontal) {
+            const a_x = a.start.x;
+            const b_y = b.start.y;
+
+            // a_x needs to be in range of b.start.x to b.end.x
+            const b_left_p = if (b.start.x < b.end.x) b.start else b.end;
+            const b_right_p = if (b.start.x < b.end.x) b.end else b.start;
+            if (a_x >= b_left_p.x and a_x <= b_right_p.x) {
+                // b_y needs to be in range of a.start.y to a.end.y
+                const a_bot_p = if (a.start.y < a.end.y) a.start else a.end;
+                const a_top_p = if (a.start.y < a.end.y) a.end else a.start;
+                if (b_y >= a_bot_p.y and b_y <= a_top_p.y) {
+                    try result.append(Point{ .x = a_x, .y = b_y });
+                }
+            }
+        } else {
+            // Flip a and b
+            try result.appendSlice(try Self.intersect(alloc, b, a));
+        }
+
+        // Remove (0,0) as valid intersections
+        var i: usize = 0;
+        while (i < result.count()) {
+            if (result.at(i).x == 0 and result.at(i).y == 0) {
+                _ = result.orderedRemove(i);
+            } else {
+                i += 1;
+            }
+        }
+
+        return result.toOwnedSlice();
+    }
+};
+
+//test "test no intersection 1" {
+//    var arena = std.heap.ArenaAllocator.init(std.heap.direct_allocator);
+//    const allocator = &arena.allocator;
+//    defer arena.deinit();
+//
+//    const a_start = Point{ .x = 50, .y = -10 };
+//    const a_end = Point{ .x = 50, .y = 10 };
+//    const b_start = Point{ .x = -20, .y = 0 };
+//    const b_end = Point{ .x = 20, .y = 0 };
+//
+//    const a = Line{ .start = a_start, .end = a_end };
+//    const b = Line{ .start = b_start, .end = b_end };
+//
+//    const ints = try Line.intersect(allocator, a, b);
+//
+//    assert(ints.len == 0);
+//}
+
+//test "test no intersection 1" {
+//    var arena = std.heap.ArenaAllocator.init(std.heap.direct_allocator);
+//    const allocator = &arena.allocator;
+//    defer arena.deinit();
+//
+//    const a_start = Point{ .x = 0, .y = -10 };
+//    const a_end = Point{ .x = 0, .y = 10 };
+//    const b_start = Point{ .x = 0, .y = 40 };
+//    const b_end = Point{ .x = 0, .y = 50 };
+//
+//    const a = Line{ .start = a_start, .end = a_end };
+//    const b = Line{ .start = b_start, .end = b_end };
+//
+//    const ints = try Line.intersect(allocator, a, b);
+//
+//    assert(ints.len == 0);
+//}
+
+//test "test intersections of lines 1" {
+//    var arena = std.heap.ArenaAllocator.init(std.heap.direct_allocator);
+//    const allocator = &arena.allocator;
+//    defer arena.deinit();
+//
+//    const a_start = Point{ .x = 0, .y = 0 };
+//    const a_end = Point{ .x = 0, .y = 10 };
+//    const b_start = Point{ .x = 0, .y = 0 };
+//    const b_end = Point{ .x = 0, .y = -3 };
+//
+//    const a = Line{ .start = a_start, .end = a_end };
+//    const b = Line{ .start = b_start, .end = b_end };
+//
+//    const ints = try Line.intersect(allocator, a, b);
+//
+//    assert(ints.len == 1);
+//    assert(ints[0].x == 0);
+//    assert(ints[0].y == 0);
+//}
+
+//test "test intersections of lines 2" {
+//    var arena = std.heap.ArenaAllocator.init(std.heap.direct_allocator);
+//    const allocator = &arena.allocator;
+//    defer arena.deinit();
+//
+//    const a_start = Point{ .x = 0, .y = -10 };
+//    const a_end = Point{ .x = 0, .y = 10 };
+//    const b_start = Point{ .x = -20, .y = 0 };
+//    const b_end = Point{ .x = 20, .y = 0 };
+//
+//    const a = Line{ .start = a_start, .end = a_end };
+//    const b = Line{ .start = b_start, .end = b_end };
+//
+//    const ints = try Line.intersect(allocator, a, b);
+//
+//    assert(ints.len == 1);
+//    assert(ints[0].x == 0);
+//    assert(ints[0].y == 0);
+//}
+
 const Path = struct {
-    points: []Point,
+    lines: []Line,
 
     const Self = @This();
 
     pub fn fromInstructions(alloc: *Allocator, instr: []Instruction) !Self {
-        var result = ArrayList(Point).init(alloc);
+        var result = ArrayList(Line).init(alloc);
         var current = Point{ .x = 0, .y = 0 };
 
         for (instr) |i| {
             switch (i.dir) {
                 .Right => {
                     const dest_x = current.x + i.len;
+                    const dest = Point{ .x = dest_x, .y = current.y };
 
-                    current.x += 1;
-                    while (current.x <= dest_x) : (current.x += 1) {
-                        try result.append(current);
-                    }
+                    try result.append(Line{ .start = current, .end = dest });
+                    current = dest;
                 },
                 .Left => {
                     const dest_x = current.x - i.len;
+                    const dest = Point{ .x = dest_x, .y = current.y };
 
-                    current.x -= 1;
-                    while (current.x >= dest_x) : (current.x -= 1) {
-                        try result.append(current);
-                    }
+                    try result.append(Line{ .start = current, .end = dest });
+                    current = dest;
                 },
                 .Down => {
                     const dest_y = current.y - i.len;
+                    const dest = Point{ .x = current.x, .y = dest_y };
 
-                    current.y -= 1;
-                    while (current.y >= dest_y) : (current.y -= 1) {
-                        try result.append(current);
-                    }
+                    try result.append(Line{ .start = current, .end = dest });
+                    current = dest;
                 },
                 .Up => {
                     const dest_y = current.y + i.len;
+                    const dest = Point{ .x = current.x, .y = dest_y };
 
-                    current.y += 1;
-                    while (current.y <= dest_y) : (current.y += 1) {
-                        try result.append(current);
-                    }
+                    try result.append(Line{ .start = current, .end = dest });
+                    current = dest;
                 },
             }
         }
 
-        return Path{ .points = result.toOwnedSlice() };
+        return Path{ .lines = result.toOwnedSlice() };
     }
 
-    pub fn has(self: Self, p: Point) bool {
-        for (self.points) |q| {
-            if (p.eql(q)) return true;
-        }
-        return false;
-    }
-
-    pub fn intersections(a: Self, b: Self, alloc: *Allocator) ![]Point {
+    pub fn intersections(alloc: *Allocator, a: Path, b: Path) ![]Point {
         var result = ArrayList(Point).init(alloc);
-        for (a.points) |p| {
-            if (b.has(p)) try result.append(p);
+        for (a.lines) |l| {
+            for (b.lines) |p| {
+                const ints = try Line.intersect(alloc, l, p);
+                try result.appendSlice(ints);
+            }
         }
         return result.toOwnedSlice();
     }
@@ -116,14 +275,29 @@ test "test example path" {
     const allocator = &arena.allocator;
     defer arena.deinit();
 
-    var instructions = ArrayList(Instruction).init(allocator);
-    try instructions.append(try Instruction.fromStr("R8"));
-    try instructions.append(try Instruction.fromStr("U5"));
-    try instructions.append(try Instruction.fromStr("L5"));
-    try instructions.append(try Instruction.fromStr("D3"));
+    var instructions_1 = ArrayList(Instruction).init(allocator);
+    try instructions_1.append(try Instruction.fromStr("R8"));
+    try instructions_1.append(try Instruction.fromStr("U5"));
+    try instructions_1.append(try Instruction.fromStr("L5"));
+    try instructions_1.append(try Instruction.fromStr("D3"));
+    const path_1 = try Path.fromInstructions(allocator, instructions_1.toOwnedSlice());
 
-    const path = try Path.fromInstructions(allocator, instructions.toOwnedSlice());
-    assert(path.points.len == 8 + 5 + 5 + 3);
+    var instructions_2 = ArrayList(Instruction).init(allocator);
+    try instructions_2.append(try Instruction.fromStr("U7"));
+    try instructions_2.append(try Instruction.fromStr("R6"));
+    try instructions_2.append(try Instruction.fromStr("D4"));
+    try instructions_2.append(try Instruction.fromStr("L4"));
+    const path_2 = try Path.fromInstructions(allocator, instructions_2.toOwnedSlice());
+
+    const ints = try Path.intersections(allocator, path_1, path_2);
+
+    assert(path_1.lines.len == 4);
+    assert(path_2.lines.len == 4);
+    std.debug.warn("ints len {}\n", ints.len);
+    std.debug.warn("ints 0 {}\n", ints[0]);
+    std.debug.warn("ints 0 x {}\n", ints[0].x);
+    std.debug.warn("ints 0 y {}\n", ints[0].y);
+    assert(ints.len == 2);
 }
 
 pub fn main() !void {
@@ -151,27 +325,20 @@ pub fn main() !void {
     const path_1 = paths.at(0);
     const path_2 = paths.at(1);
 
-    std.debug.warn("{}\n", path_1.points.len);
-    std.debug.warn("{}\n", path_2.points.len);
+    const ints = try Path.intersections(allocator, path_1, path_2);
 
-    // Iterate over all points in a specific
-    // Manhattan Distance
-    const max_n = 1000;
-    var result: ?Point = null;
-    var n: i32 = 0;
-    outer: while (n < max_n) : (n += 1) {
-        var x: i32 = -n;
-        while (x <= n) : (x += 1) {
-            var p_1 = Point{ .x = x, .y = n - x };
-            var p_2 = Point{ .x = x, .y = x - n };
+    std.debug.warn("Number of intersections: {}\n", ints.len);
 
-            if (path_1.has(p_1) and path_2.has(p_1)) {
-                result = p_1;
-                break :outer;
-            } else if (path_1.has(p_2) and path_2.has(p_2)) {
-                result = p_2;
-                break :outer;
-            }
+    // Find closest intersection
+    var min_dist: ?i32 = null;
+    for (ints) |p| {
+        if (min_dist) |min| {
+            if ((try p.distance()) < min)
+                min_dist = try p.distance();
+        } else {
+            min_dist = try p.distance();
         }
     }
+
+    std.debug.warn("Minimum distance: {}\n", min_dist);
 }
