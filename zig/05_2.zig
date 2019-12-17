@@ -32,6 +32,14 @@ test "param mode extraction" {
     assert(paramMode(1002, 2) == 0);
 }
 
+fn getParam(intcode: []i32, pos: usize, n: usize, mode: i32) !i32 {
+    return switch (mode) {
+        0 => intcode[@intCast(usize, intcode[pos + 1 + n])],
+        1 => intcode[pos + 1 + n],
+        else => return error.InvalidParamMode,
+    };
+}
+
 fn exec(intcode: []i32, input_stream: var, output_stream: var) !void {
     var pos: usize = 0;
 
@@ -40,31 +48,15 @@ fn exec(intcode: []i32, input_stream: var, output_stream: var) !void {
         switch (opcode(instr)) {
             99 => break,
             1 => {
-                const val_x = switch (paramMode(instr, 0)) {
-                    0 => intcode[@intCast(usize, intcode[pos + 1])],
-                    1 => intcode[pos + 1],
-                    else => return error.InvalidParamMode,
-                };
-                const val_y = switch (paramMode(instr, 1)) {
-                    0 => intcode[@intCast(usize, intcode[pos + 2])],
-                    1 => intcode[pos + 2],
-                    else => return error.InvalidParamMode,
-                };
+                const val_x = try getParam(intcode, pos, 0, paramMode(instr, 0));
+                const val_y = try getParam(intcode, pos, 1, paramMode(instr, 1));
                 const pos_result = @intCast(usize, intcode[pos + 3]);
                 intcode[pos_result] = val_x + val_y;
                 pos += 4;
             },
             2 => {
-                const val_x = switch (paramMode(instr, 0)) {
-                    0 => intcode[@intCast(usize, intcode[pos + 1])],
-                    1 => intcode[pos + 1],
-                    else => return error.InvalidParamMode,
-                };
-                const val_y = switch (paramMode(instr, 1)) {
-                    0 => intcode[@intCast(usize, intcode[pos + 2])],
-                    1 => intcode[pos + 2],
-                    else => return error.InvalidParamMode,
-                };
+                const val_x = try getParam(intcode, pos, 0, paramMode(instr, 0));
+                const val_y = try getParam(intcode, pos, 1, paramMode(instr, 1));
                 const pos_result = @intCast(usize, intcode[pos + 3]);
                 intcode[pos_result] = val_x * val_y;
                 pos += 4;
@@ -81,74 +73,38 @@ fn exec(intcode: []i32, input_stream: var, output_stream: var) !void {
                 pos += 2;
             },
             4 => {
-                const val_x = switch (paramMode(instr, 0)) {
-                    0 => intcode[@intCast(usize, intcode[pos + 1])],
-                    1 => intcode[pos + 1],
-                    else => return error.InvalidParamMode,
-                };
+                const val_x = try getParam(intcode, pos, 0, paramMode(instr, 0));
                 try output_stream.print("{}\n", .{ val_x });
                 pos += 2;
             },
             5 => {
-                const val_x = switch (paramMode(instr, 0)) {
-                    0 => intcode[@intCast(usize, intcode[pos + 1])],
-                    1 => intcode[pos + 1],
-                    else => return error.InvalidParamMode,
-                };
+                const val_x = try getParam(intcode, pos, 0, paramMode(instr, 0));
                 if (val_x != 0) {
-                    const val_y = switch (paramMode(instr, 1)) {
-                        0 => intcode[@intCast(usize, intcode[pos + 2])],
-                        1 => intcode[pos + 2],
-                        else => return error.InvalidParamMode,
-                    };
+                    const val_y = try getParam(intcode, pos, 1, paramMode(instr, 1));
                     pos = @intCast(usize, val_y);
                 } else {
                     pos += 3;
                 }
             },
             6 => {
-                const val_x = switch (paramMode(instr, 0)) {
-                    0 => intcode[@intCast(usize, intcode[pos + 1])],
-                    1 => intcode[pos + 1],
-                    else => return error.InvalidParamMode,
-                };
+                const val_x = try getParam(intcode, pos, 0, paramMode(instr, 0));
                 if (val_x == 0) {
-                    const val_y = switch (paramMode(instr, 1)) {
-                        0 => intcode[@intCast(usize, intcode[pos + 2])],
-                        1 => intcode[pos + 2],
-                        else => return error.InvalidParamMode,
-                    };
+                    const val_y = try getParam(intcode, pos, 1, paramMode(instr, 1));
                     pos = @intCast(usize, val_y);
                 } else {
                     pos += 3;
                 }
             },
             7 => {
-                const val_x = switch (paramMode(instr, 0)) {
-                    0 => intcode[@intCast(usize, intcode[pos + 1])],
-                    1 => intcode[pos + 1],
-                    else => return error.InvalidParamMode,
-                };
-                const val_y = switch (paramMode(instr, 1)) {
-                    0 => intcode[@intCast(usize, intcode[pos + 2])],
-                    1 => intcode[pos + 2],
-                    else => return error.InvalidParamMode,
-                };
+                const val_x = try getParam(intcode, pos, 0, paramMode(instr, 0));
+                const val_y = try getParam(intcode, pos, 1, paramMode(instr, 1));
                 const pos_result = @intCast(usize, intcode[pos + 3]);
                 intcode[pos_result] = if (val_x < val_y) 1 else 0;
                 pos += 4;
             },
             8 => {
-                const val_x = switch (paramMode(instr, 0)) {
-                    0 => intcode[@intCast(usize, intcode[pos + 1])],
-                    1 => intcode[pos + 1],
-                    else => return error.InvalidParamMode,
-                };
-                const val_y = switch (paramMode(instr, 1)) {
-                    0 => intcode[@intCast(usize, intcode[pos + 2])],
-                    1 => intcode[pos + 2],
-                    else => return error.InvalidParamMode,
-                };
+                const val_x = try getParam(intcode, pos, 0, paramMode(instr, 0));
+                const val_y = try getParam(intcode, pos, 1, paramMode(instr, 1));
                 const pos_result = @intCast(usize, intcode[pos + 3]);
                 intcode[pos_result] = if (val_x == val_y) 1 else 0;
                 pos += 4;
