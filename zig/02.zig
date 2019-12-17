@@ -59,7 +59,7 @@ pub fn main() !void {
 
     // read everything into an int arraylist
     while (try (&stdin_stream.stream).readUntilDelimiterOrEof(&buf, ',')) |item| {
-        try ints.append(try std.fmt.parseInt(u8, item, 10));
+        try ints.append(try std.fmt.parseInt(i32, item, 10));
     }
 
     ints.set(1, 12);
