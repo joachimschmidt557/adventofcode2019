@@ -43,7 +43,10 @@ const Instruction = struct {
                 'D' => .Down,
                 'L' => .Left,
                 'R' => .Right,
-                else => return error.InvalidDirection,
+                else => {
+                    std.debug.warn("{}\n", .{ s });
+                    return error.InvalidDirection;
+                },
             },
             .len = try std.fmt.parseInt(i32, s[1..], 10),
         };
@@ -125,7 +128,7 @@ const Line = struct {
 
         // Remove (0,0) as valid intersections
         var i: usize = 0;
-        while (i < result.count()) {
+        while (i < result.len) {
             if (result.at(i).x == 0 and result.at(i).y == 0) {
                 _ = result.orderedRemove(i);
             } else {
@@ -136,82 +139,6 @@ const Line = struct {
         return result.toOwnedSlice();
     }
 };
-
-//test "test no intersection 1" {
-//    var arena = std.heap.ArenaAllocator.init(std.heap.direct_allocator);
-//    const allocator = &arena.allocator;
-//    defer arena.deinit();
-//
-//    const a_start = Point{ .x = 50, .y = -10 };
-//    const a_end = Point{ .x = 50, .y = 10 };
-//    const b_start = Point{ .x = -20, .y = 0 };
-//    const b_end = Point{ .x = 20, .y = 0 };
-//
-//    const a = Line{ .start = a_start, .end = a_end };
-//    const b = Line{ .start = b_start, .end = b_end };
-//
-//    const ints = try Line.intersect(allocator, a, b);
-//
-//    assert(ints.len == 0);
-//}
-
-//test "test no intersection 1" {
-//    var arena = std.heap.ArenaAllocator.init(std.heap.direct_allocator);
-//    const allocator = &arena.allocator;
-//    defer arena.deinit();
-//
-//    const a_start = Point{ .x = 0, .y = -10 };
-//    const a_end = Point{ .x = 0, .y = 10 };
-//    const b_start = Point{ .x = 0, .y = 40 };
-//    const b_end = Point{ .x = 0, .y = 50 };
-//
-//    const a = Line{ .start = a_start, .end = a_end };
-//    const b = Line{ .start = b_start, .end = b_end };
-//
-//    const ints = try Line.intersect(allocator, a, b);
-//
-//    assert(ints.len == 0);
-//}
-
-//test "test intersections of lines 1" {
-//    var arena = std.heap.ArenaAllocator.init(std.heap.direct_allocator);
-//    const allocator = &arena.allocator;
-//    defer arena.deinit();
-//
-//    const a_start = Point{ .x = 0, .y = 0 };
-//    const a_end = Point{ .x = 0, .y = 10 };
-//    const b_start = Point{ .x = 0, .y = 0 };
-//    const b_end = Point{ .x = 0, .y = -3 };
-//
-//    const a = Line{ .start = a_start, .end = a_end };
-//    const b = Line{ .start = b_start, .end = b_end };
-//
-//    const ints = try Line.intersect(allocator, a, b);
-//
-//    assert(ints.len == 1);
-//    assert(ints[0].x == 0);
-//    assert(ints[0].y == 0);
-//}
-
-//test "test intersections of lines 2" {
-//    var arena = std.heap.ArenaAllocator.init(std.heap.direct_allocator);
-//    const allocator = &arena.allocator;
-//    defer arena.deinit();
-//
-//    const a_start = Point{ .x = 0, .y = -10 };
-//    const a_end = Point{ .x = 0, .y = 10 };
-//    const b_start = Point{ .x = -20, .y = 0 };
-//    const b_end = Point{ .x = 20, .y = 0 };
-//
-//    const a = Line{ .start = a_start, .end = a_end };
-//    const b = Line{ .start = b_start, .end = b_end };
-//
-//    const ints = try Line.intersect(allocator, a, b);
-//
-//    assert(ints.len == 1);
-//    assert(ints[0].x == 0);
-//    assert(ints[0].y == 0);
-//}
 
 const Path = struct {
     lines: []Line,
@@ -307,16 +234,19 @@ pub fn main() !void {
 
     var paths = ArrayList(Path).init(allocator);
 
+    const input_file = try std.fs.cwd().openFile("input03.txt", .{});
+    var input_stream = input_file.inStream();
     var buf = try std.Buffer.initSize(allocator, std.mem.page_size);
-    while (std.io.readLine(&buf)) |line| {
+    while (std.io.readLineFrom(&input_stream.stream, &buf)) |line| {
         var instructions = ArrayList(Instruction).init(allocator);
+        defer instructions.deinit();
 
         var iter = std.mem.separate(line, ",");
         while (iter.next()) |itm| {
             try instructions.append(try Instruction.fromStr(itm));
         }
 
-        try paths.append(try Path.fromInstructions(allocator, instructions.toOwnedSlice()));
+        try paths.append(try Path.fromInstructions(allocator, instructions.toSlice()));
     } else |err| switch (err) {
         error.EndOfStream => {},
         else => return err,
@@ -327,7 +257,7 @@ pub fn main() !void {
 
     const ints = try Path.intersections(allocator, path_1, path_2);
 
-    std.debug.warn("Number of intersections: {}\n", ints.len);
+    std.debug.warn("Number of intersections: {}\n", .{ ints.len });
 
     // Find closest intersection
     var min_dist: ?i32 = null;
@@ -340,5 +270,5 @@ pub fn main() !void {
         }
     }
 
-    std.debug.warn("Minimum distance: {}\n", min_dist);
+    std.debug.warn("Minimum distance: {}\n", .{ min_dist });
 }
