@@ -220,10 +220,10 @@ test "test example path" {
 
     assert(path_1.lines.len == 4);
     assert(path_2.lines.len == 4);
-    std.debug.warn("ints len {}\n", ints.len);
-    std.debug.warn("ints 0 {}\n", ints[0]);
-    std.debug.warn("ints 0 x {}\n", ints[0].x);
-    std.debug.warn("ints 0 y {}\n", ints[0].y);
+    std.debug.warn("ints len {}\n", .{ints.len});
+    std.debug.warn("ints 0 {}\n", .{ints[0]});
+    std.debug.warn("ints 0 x {}\n", .{ints[0].x});
+    std.debug.warn("ints 0 y {}\n", .{ints[0].y});
     assert(ints.len == 2);
 }
 
@@ -235,9 +235,9 @@ pub fn main() !void {
     var paths = ArrayList(Path).init(allocator);
 
     const input_file = try std.fs.cwd().openFile("input03.txt", .{});
-    var input_stream = input_file.inStream();
+    var input_stream = input_file.inStream().stream;
     var buf = try std.Buffer.initSize(allocator, std.mem.page_size);
-    while (std.io.readLineFrom(&input_stream.stream, &buf)) |line| {
+    while (input_stream.readUntilDelimiterAlloc(allocator, '\n', 1024)) |line| {
         var instructions = ArrayList(Instruction).init(allocator);
         defer instructions.deinit();
 

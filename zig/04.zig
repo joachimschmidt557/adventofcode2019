@@ -44,5 +44,5 @@ pub fn main() void {
         if (valid(x)) count += 1;
     }
 
-    std.debug.warn("Count: {}\n", count);
+    std.debug.warn("Count: {}\n", .{count});
 }

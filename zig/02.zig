@@ -68,5 +68,5 @@ pub fn main() !void {
     try exec(ints.toSlice());
 
     // output entry at position 0
-    std.debug.warn("value at position 0: {}\n", ints.at(0));
+    std.debug.warn("value at position 0: {}\n", .{ints.at(0)});
 }

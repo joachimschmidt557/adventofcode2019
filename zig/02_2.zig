@@ -83,6 +83,6 @@ pub fn main() !void {
     }
 
     // output solution
-    std.debug.warn("noun: {} verb: {}\n", noun, verb);
-    std.debug.warn("100 * noun + verb = {}\n", 100 * noun + verb);
+    std.debug.warn("noun: {} verb: {}\n", .{noun, verb});
+    std.debug.warn("100 * noun + verb = {}\n", .{100 * noun + verb});
 }
