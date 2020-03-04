@@ -27,10 +27,12 @@ pub fn main() !void {
     const allocator = &arena.allocator;
     defer arena.deinit();
 
-    const buf = &try std.Buffer.initSize(allocator, std.mem.page_size);
+    const stdin = std.io.getStdIn();
+    var stdin_stream = stdin.inStream().stream;
     var modules = std.ArrayList(Module).init(allocator);
 
-    while (std.io.readLine(buf)) |line| {
+    while (stdin_stream.readUntilDelimiterAlloc(allocator, '\n', 1024)) |line| {
+        defer allocator.free(line);
         try modules.append(Module{ .mass = try std.fmt.parseInt(u32, line, 10) });
     } else |err| switch (err) {
         error.EndOfStream => {},
@@ -38,9 +40,8 @@ pub fn main() !void {
     }
 
     var sum: u32 = 0;
-    var iter = modules.iterator();
-    while (iter.next()) |mod| {
+    for (modules.toSlice()) |mod| {
         sum += mod.requiredFuel();
     }
-    std.debug.warn("{}\n", sum);
+    std.debug.warn("{}\n", .{sum});
 }
