@@ -30,10 +30,7 @@ const OrbitMap = struct {
             .map = map,
         };
 
-        var buf = try Buffer.initSize(allocator, std.mem.page_size);
-        defer buf.deinit();
-
-        while (std.io.readLineFrom(stream, &buf)) |line| {
+        while (stream.readUntilDelimiterAlloc(allocator, '\n', 1024)) |line| {
             var iter = std.mem.separate(line, ")");
             const orbitee = iter.next() orelse return error.FormatError;
             const orbiter = iter.next() orelse return error.FormatError;

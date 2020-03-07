@@ -92,10 +92,9 @@ pub const AsteroidMap = struct {
 
     pub fn fromStream(stream: var, allocator: *Allocator) !Self {
         var asteroids = ArrayList(Pos).init(allocator);
-        var buf = try Buffer.initSize(allocator, std.mem.page_size);
 
         var y: usize = 0;
-        while (std.io.readLineFrom(stream, &buf)) |line| {
+        while (stream.readUntilDelimiterAlloc(allocator, '\n', 1024)) |line| {
             for (line) |c, i| {
                 switch (c) {
                     '#' => try asteroids.append(Pos{

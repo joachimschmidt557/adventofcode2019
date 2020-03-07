@@ -64,10 +64,7 @@ fn exec(intcode: []i32, input_stream: var, output_stream: var) !void {
             3 => {
                 const pos_x = @intCast(usize, intcode[pos + 1]);
                 var buf: [1024]u8 = undefined;
-                const line = std.io.readLineSliceFrom(input_stream, &buf) catch |e| switch (e) {
-                    error.EndOfStream => "",
-                    else => return e,
-                };
+                const line = (try input_stream.readUntilDelimiterOrEof(&buf, '\n')) orelse "";
                 const val = try std.fmt.parseInt(i32, line, 10);
                 intcode[pos_x] = val;
                 pos += 2;

@@ -176,10 +176,10 @@ pub fn main() !void {
 
     var moons = ArrayList(Moon).init(allocator);
     const input_file = try std.fs.cwd().openFile("input12.txt", .{});
-    var input_stream = input_file.inStream();
-    var buf: [1024]u8 = undefined;
+    var input_stream = input_file.inStream().stream;
 
-    while (std.io.readLineSliceFrom(&input_stream.stream, &buf)) |line| {
+    while (input_stream.readUntilDelimiterAlloc(allocator, '\n', 1024)) |line| {
+        defer allocator.free(line);
         try moons.append(Moon.init(try Vec3.parse(line)));
     } else |e| switch (e) {
         error.EndOfStream => {},
