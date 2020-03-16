@@ -1,7 +1,6 @@
 const std = @import("std");
 const assert = std.debug.assert;
-const SliceInStream = std.io.SliceInStream;
-const NullOutStream = std.io.NullOutStream;
+const fixedBufferStream = std.io.fixedBufferStream;
 
 const ExecError = error{
     InvalidOpcode,
@@ -83,31 +82,36 @@ fn exec(intcode: []i32, input_stream: var, output_stream: var) !void {
 
 test "test exec 1" {
     var intcode = [_]i32{ 1, 0, 0, 0, 99 };
-    try exec(&intcode, &SliceInStream.init("").stream, &NullOutStream.init().stream);
+    var in_stream = fixedBufferStream("").inStream();
+    try exec(&intcode, in_stream, std.io.null_out_stream);
     assert(intcode[0] == 2);
 }
 
 test "test exec 2" {
     var intcode = [_]i32{ 2, 3, 0, 3, 99 };
-    try exec(&intcode, &SliceInStream.init("").stream, &NullOutStream.init().stream);
+    var in_stream = fixedBufferStream("").inStream();
+    try exec(&intcode, in_stream, std.io.null_out_stream);
     assert(intcode[3] == 6);
 }
 
 test "test exec 3" {
     var intcode = [_]i32{ 2, 4, 4, 5, 99, 0 };
-    try exec(&intcode, &SliceInStream.init("").stream, &NullOutStream.init().stream);
+    var in_stream = fixedBufferStream("").inStream();
+    try exec(&intcode, in_stream, std.io.null_out_stream);
     assert(intcode[5] == 9801);
 }
 
 test "test exec with different param mode" {
     var intcode = [_]i32{ 1002, 4, 3, 4, 33 };
-    try exec(&intcode, &SliceInStream.init("").stream, &NullOutStream.init().stream);
+    var in_stream = fixedBufferStream("").inStream();
+    try exec(&intcode, in_stream, std.io.null_out_stream);
     assert(intcode[4] == 99);
 }
 
 test "test exec with negative integers" {
     var intcode = [_]i32{ 1101, 100, -1, 4, 0 };
-    try exec(&intcode, &SliceInStream.init("").stream, &NullOutStream.init().stream);
+    var in_stream = fixedBufferStream("").inStream();
+    try exec(&intcode, in_stream, std.io.null_out_stream);
     assert(intcode[4] == 99);
 }
 
@@ -122,7 +126,7 @@ pub fn main() !void {
     var ints = std.ArrayList(i32).init(allocator);
 
     // read everything into an int arraylist
-    while (try (&input_stream.stream).readUntilDelimiterOrEof(&buf, ',')) |item| {
+    while (try input_stream.readUntilDelimiterOrEof(&buf, ',')) |item| {
         try ints.append(std.fmt.parseInt(i32, item, 10) catch 0);
     }
 

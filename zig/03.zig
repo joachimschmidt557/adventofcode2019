@@ -235,7 +235,7 @@ pub fn main() !void {
     var paths = ArrayList(Path).init(allocator);
 
     const input_file = try std.fs.cwd().openFile("input03.txt", .{});
-    var input_stream = input_file.inStream().stream;
+    var input_stream = input_file.inStream();
     var buf = try std.Buffer.initSize(allocator, std.mem.page_size);
     while (input_stream.readUntilDelimiterAlloc(allocator, '\n', 1024)) |line| {
         var instructions = ArrayList(Instruction).init(allocator);

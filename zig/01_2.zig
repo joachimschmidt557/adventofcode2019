@@ -28,7 +28,7 @@ pub fn main() !void {
     defer arena.deinit();
 
     const stdin = std.io.getStdIn();
-    var stdin_stream = stdin.inStream().stream;
+    var stdin_stream = stdin.inStream();
     var modules = std.ArrayList(Module).init(allocator);
 
     while (stdin_stream.readUntilDelimiterAlloc(allocator, '\n', 1024)) |line| {

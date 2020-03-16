@@ -3,7 +3,7 @@ const Allocator = std.mem.Allocator;
 const StringHashMap = std.StringHashMap;
 const BufSet = std.BufSet;
 const Buffer = std.Buffer;
-const SliceInStream = std.io.SliceInStream;
+const fixedBufferStream = std.io.fixedBufferStream;
 const assert = std.debug.assert;
 
 const OrbitMapParseError = error{
@@ -74,7 +74,7 @@ test "count orbits" {
     const allocator = &arena.allocator;
     defer arena.deinit();
 
-    var mem_stream = SliceInStream.init(
+    var mem_stream = fixedBufferStream(
         \\COM)B
         \\B)C
         \\C)D
@@ -88,8 +88,8 @@ test "count orbits" {
         \\K)L
         \\ 
     );
-    const stream = &mem_stream.stream;
-    var orbit_map = try OrbitMap.fromStream(allocator, stream);
+    var in_stream = mem_stream.inStream();
+    var orbit_map = try OrbitMap.fromStream(allocator, in_stream);
 
     assert(orbit_map.count("COM", 0) == 42);
 }
@@ -100,7 +100,7 @@ pub fn main() !void {
     defer arena.deinit();
 
     const input_file = try std.fs.cwd().openFile("input06.txt", .{});
-    const input_stream = &input_file.inStream().stream;
+    var input_stream = input_file.inStream();
 
     var orbit_map = try OrbitMap.fromStream(allocator, input_stream);
 

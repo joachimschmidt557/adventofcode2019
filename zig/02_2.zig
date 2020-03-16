@@ -58,7 +58,7 @@ pub fn main() !void {
     var ints = std.ArrayList(i32).init(allocator);
 
     // read everything into an int arraylist
-    while (try (&stdin_stream.stream).readUntilDelimiterOrEof(&buf, ',')) |item| {
+    while (try stdin_stream.readUntilDelimiterOrEof(&buf, ',')) |item| {
         try ints.append(try std.fmt.parseInt(u8, item, 10));
     }
 
