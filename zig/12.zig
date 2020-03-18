@@ -176,7 +176,7 @@ pub fn main() !void {
 
     var moons = ArrayList(Moon).init(allocator);
     const input_file = try std.fs.cwd().openFile("input12.txt", .{});
-    var input_stream = input_file.inStream().stream;
+    var input_stream = input_file.inStream();
 
     while (input_stream.readUntilDelimiterAlloc(allocator, '\n', 1024)) |line| {
         defer allocator.free(line);

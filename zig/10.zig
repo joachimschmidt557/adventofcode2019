@@ -4,7 +4,7 @@ const approxEq = std.math.approxEq;
 const Allocator = std.mem.Allocator;
 const ArrayList = std.ArrayList;
 const Buffer = std.Buffer;
-const SliceInStream = std.io.SliceInStream;
+const fixedBufferStream = std.io.fixedBufferStream;
 
 pub const Pos = struct {
     x: usize,
@@ -163,14 +163,14 @@ test "read asteroid map" {
     const allocator = &arena.allocator;
     defer arena.deinit();
 
-    var input_stream = SliceInStream.init(
+    var input_stream = fixedBufferStream(
         \\..#
             \\#.#
             \\...
             \\ 
-    );
+    ).inStream();
 
-    const map = try AsteroidMap.fromStream(&input_stream.stream, allocator);
+    const map = try AsteroidMap.fromStream(input_stream, allocator);
     expectEqual(@intCast(usize, 3), map.asteroids.len);
     expectEqual(map.asteroids[0], Pos{ .x = 2, .y = 0 });
     expectEqual(map.asteroids[1], Pos{ .x = 0, .y = 1 });
@@ -182,16 +182,16 @@ test "count visible asteroids" {
     const allocator = &arena.allocator;
     defer arena.deinit();
 
-    var input_stream = SliceInStream.init(
+    var input_stream = fixedBufferStream(
         \\.#..#
             \\.....
             \\#####
             \\....#
             \\...##
             \\ 
-    );
+    ).inStream();
 
-    const map = try AsteroidMap.fromStream(&input_stream.stream, allocator);
+    const map = try AsteroidMap.fromStream(input_stream, allocator);
     expectEqual(@intCast(usize, 10), map.asteroids.len);
     expectEqual(@intCast(usize, 7), map.detectableAsteroids(pos(1, 0)));
     expectEqual(@intCast(usize, 7), map.detectableAsteroids(pos(4, 0)));
@@ -210,16 +210,16 @@ test "max visible asteroids 1" {
     const allocator = &arena.allocator;
     defer arena.deinit();
 
-    var input_stream = SliceInStream.init(
+    var input_stream = fixedBufferStream(
         \\.#..#
             \\.....
             \\#####
             \\....#
             \\...##
             \\ 
-    );
+    ).inStream();
 
-    const map = try AsteroidMap.fromStream(&input_stream.stream, allocator);
+    const map = try AsteroidMap.fromStream(input_stream, allocator);
     expectEqual(@intCast(usize, 10), map.asteroids.len);
     expectEqual(@intCast(usize, 8), map.maxDetectableAsteroids().?);
 }
@@ -229,7 +229,7 @@ test "max visible asteroids 2" {
     const allocator = &arena.allocator;
     defer arena.deinit();
 
-    var input_stream = SliceInStream.init(
+    var input_stream = fixedBufferStream(
         \\......#.#.
             \\#..#.#....
             \\..#######.
@@ -241,9 +241,9 @@ test "max visible asteroids 2" {
             \\##...#..#.
             \\.#....####
             \\ 
-    );
+    ).inStream();
 
-    const map = try AsteroidMap.fromStream(&input_stream.stream, allocator);
+    const map = try AsteroidMap.fromStream(input_stream, allocator);
     expectEqual(@intCast(usize, 33), map.maxDetectableAsteroids().?);
 }
 
@@ -252,7 +252,7 @@ test "max visible asteroids 3" {
     const allocator = &arena.allocator;
     defer arena.deinit();
 
-    var input_stream = SliceInStream.init(
+    var input_stream = fixedBufferStream(
         \\#.#...#.#.
             \\.###....#.
             \\.#....#...
@@ -264,9 +264,9 @@ test "max visible asteroids 3" {
             \\......#...
             \\.####.###.
             \\ 
-    );
+    ).inStream();
 
-    const map = try AsteroidMap.fromStream(&input_stream.stream, allocator);
+    const map = try AsteroidMap.fromStream(input_stream, allocator);
     expectEqual(@intCast(usize, 35), map.maxDetectableAsteroids().?);
 }
 
@@ -275,7 +275,7 @@ test "max visible asteroids 4" {
     const allocator = &arena.allocator;
     defer arena.deinit();
 
-    var input_stream = SliceInStream.init(
+    var input_stream = fixedBufferStream(
         \\.#..#..###
             \\####.###.#
             \\....###.#.
@@ -287,9 +287,9 @@ test "max visible asteroids 4" {
             \\.##...##.#
             \\.....#.#..
             \\ 
-    );
+    ).inStream();
 
-    const map = try AsteroidMap.fromStream(&input_stream.stream, allocator);
+    const map = try AsteroidMap.fromStream(input_stream, allocator);
     expectEqual(@intCast(usize, 41), map.maxDetectableAsteroids().?);
 }
 
@@ -298,7 +298,7 @@ test "max visible asteroids 5" {
     const allocator = &arena.allocator;
     defer arena.deinit();
 
-    var input_stream = SliceInStream.init(
+    var input_stream = fixedBufferStream(
         \\.#..##.###...#######
             \\##.############..##.
             \\.#.######.########.#
@@ -320,9 +320,9 @@ test "max visible asteroids 5" {
             \\#.#.#.#####.####.###
             \\###.##.####.##.#..##
             \\ 
-    );
+    ).inStream();
 
-    const map = try AsteroidMap.fromStream(&input_stream.stream, allocator);
+    const map = try AsteroidMap.fromStream(input_stream, allocator);
     expectEqual(@intCast(usize, 210), map.maxDetectableAsteroids().?);
 }
 
@@ -334,7 +334,7 @@ pub fn main() !void {
     const input_file = try std.fs.cwd().openFile("input10.txt", .{});
     var input_stream = input_file.inStream();
 
-    const map = try AsteroidMap.fromStream(&input_stream.stream, allocator);
+    const map = try AsteroidMap.fromStream(input_stream, allocator);
     const max = map.maxDetectableAsteroids().?;
     std.debug.warn("max detectable asteroids: {}\n", .{ max });
 }
