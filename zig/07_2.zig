@@ -4,10 +4,6 @@ const expect = std.testing.expect;
 const expectEqual = std.testing.expectEqual;
 const Allocator = std.mem.Allocator;
 const ArrayList = std.ArrayList;
-const SliceInStream = std.io.SliceInStream;
-const SliceOutStream = std.io.SliceOutStream;
-const NullOutStream = std.io.NullOutStream;
-const CountingOutStream = std.io.CountingOutStream;
 
 const ExecError = error{
     InvalidOpcode,
@@ -446,7 +442,7 @@ pub fn main() !void {
     var ints = std.ArrayList(i32).init(allocator);
 
     // read amp intcode into an int arraylist
-    while (try (&input_stream.stream).readUntilDelimiterOrEof(&buf, ',')) |item| {
+    while (try input_stream.readUntilDelimiterOrEof(&buf, ',')) |item| {
         // add an empty element to the input file because I don't want to modify
         // this to discard newlines
         try ints.append(std.fmt.parseInt(i32, item, 10) catch -1);

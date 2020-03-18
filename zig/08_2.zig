@@ -3,7 +3,7 @@ const assert = std.debug.assert;
 const expect = std.testing.expect;
 const Allocator = std.mem.Allocator;
 const ArrayList = std.ArrayList;
-const SliceInStream = std.io.SliceInStream;
+const fixedBufferStream = std.io.fixedBufferStream;
 
 const Pixel = u8;
 
@@ -16,7 +16,7 @@ const Layer = struct {
         var pixels = try alloc.alloc(Pixel, w * h);
         for (pixels) |*p| {
             var buf: [1]u8 = undefined;
-            if ((try stream.readFull(&buf)) == 0)
+            if ((try stream.readAll(&buf)) == 0)
                 return error.EndOfStream;
             p.* = try std.fmt.parseInt(u8, &buf, 10);
         }
@@ -49,8 +49,8 @@ test "read layer" {
     const allocator = &arena.allocator;
     defer arena.deinit();
 
-    var in_stream = SliceInStream.init("001123");
-    const lay = try Layer.fromStream(allocator, &in_stream.stream, 3, 2);
+    var in_stream = fixedBufferStream("001123").inStream();
+    const lay = try Layer.fromStream(allocator, in_stream, 3, 2);
 
     expect(lay.countDigit(1) == 2);
     expect(lay.countDigit(0) == 2);
@@ -104,8 +104,8 @@ test "read image" {
     const allocator = &arena.allocator;
     defer arena.deinit();
 
-    var in_stream = SliceInStream.init("123456789012");
-    const img = try Image.fromStream(allocator, &in_stream.stream, 3, 2);
+    var in_stream = fixedBufferStream("123456789012").inStream();
+    const img = try Image.fromStream(allocator, in_stream, 3, 2);
 
     expect(img.layers.len == 2);
 }
@@ -119,7 +119,7 @@ pub fn main() !void {
     var input_stream = input_file.inStream();
 
     // read image
-    var img = try Image.fromStream(allocator, &input_stream.stream, 25, 6);
+    var img = try Image.fromStream(allocator, input_stream, 25, 6);
 
     // flatten
     img.flatten();

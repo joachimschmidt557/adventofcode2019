@@ -209,42 +209,42 @@ pub const IntcodeComputer = struct {
 
 test "test exec 1" {
     var intcode = [_]Instr{ 1, 0, 0, 0, 99 };
-    var comp = IntcodeComputer.init(&intcode, std.debug.failing_allocator);
+    var comp = IntcodeComputer.init(&intcode, std.testing.failing_allocator);
     try comp.execUntilHalt();
     expectEqual(intcode[0], 2);
 }
 
 test "test exec 2" {
     var intcode = [_]Instr{ 2, 3, 0, 3, 99 };
-    var comp = IntcodeComputer.init(&intcode, std.debug.failing_allocator);
+    var comp = IntcodeComputer.init(&intcode, std.testing.failing_allocator);
     try comp.execUntilHalt();
     expectEqual(intcode[3], 6);
 }
 
 test "test exec 3" {
     var intcode = [_]Instr{ 2, 4, 4, 5, 99, 0 };
-    var comp = IntcodeComputer.init(&intcode, std.debug.failing_allocator);
+    var comp = IntcodeComputer.init(&intcode, std.testing.failing_allocator);
     try comp.execUntilHalt();
     expectEqual(intcode[5], 9801);
 }
 
 test "test exec with different param mode" {
     var intcode = [_]Instr{ 1002, 4, 3, 4, 33 };
-    var comp = IntcodeComputer.init(&intcode, std.debug.failing_allocator);
+    var comp = IntcodeComputer.init(&intcode, std.testing.failing_allocator);
     try comp.execUntilHalt();
     expectEqual(intcode[4], 99);
 }
 
 test "test exec with negative integers" {
     var intcode = [_]Instr{ 1101, 100, -1, 4, 0 };
-    var comp = IntcodeComputer.init(&intcode, std.debug.failing_allocator);
+    var comp = IntcodeComputer.init(&intcode, std.testing.failing_allocator);
     try comp.execUntilHalt();
     expectEqual(intcode[4], 99);
 }
 
 test "test equal 1" {
     var intcode = [_]Instr{ 3,9,8,9,10,9,4,9,99,-1,8 };
-    var comp = IntcodeComputer.init(&intcode, std.debug.failing_allocator);
+    var comp = IntcodeComputer.init(&intcode, std.testing.failing_allocator);
     comp.input = 8;
     try comp.execUntilHalt();
     expectEqual(comp.output.?, 1);
@@ -252,7 +252,7 @@ test "test equal 1" {
 
 test "test equal 2" {
     var intcode = [_]Instr{ 3,9,8,9,10,9,4,9,99,-1,8 };
-    var comp = IntcodeComputer.init(&intcode, std.debug.failing_allocator);
+    var comp = IntcodeComputer.init(&intcode, std.testing.failing_allocator);
     comp.input = 13;
     try comp.execUntilHalt();
     expectEqual(comp.output.?, 0);
@@ -260,7 +260,7 @@ test "test equal 2" {
 
 test "test less than 1" {
     var intcode = [_]Instr{ 3,9,7,9,10,9,4,9,99,-1,8 };
-    var comp = IntcodeComputer.init(&intcode, std.debug.failing_allocator);
+    var comp = IntcodeComputer.init(&intcode, std.testing.failing_allocator);
     comp.input = 5;
     try comp.execUntilHalt();
     expectEqual(comp.output.?, 1);
@@ -268,7 +268,7 @@ test "test less than 1" {
 
 test "test less than 2" {
     var intcode = [_]Instr{ 3,9,7,9,10,9,4,9,99,-1,8 };
-    var comp = IntcodeComputer.init(&intcode, std.debug.failing_allocator);
+    var comp = IntcodeComputer.init(&intcode, std.testing.failing_allocator);
     comp.input = 20;
     try comp.execUntilHalt();
     expectEqual(comp.output.?, 0);
@@ -276,7 +276,7 @@ test "test less than 2" {
 
 test "test equal immediate" {
     var intcode = [_]Instr{ 3,3,1108,-1,8,3,4,3,99 };
-    var comp = IntcodeComputer.init(&intcode, std.debug.failing_allocator);
+    var comp = IntcodeComputer.init(&intcode, std.testing.failing_allocator);
     comp.input = 8;
     try comp.execUntilHalt();
     expectEqual(comp.output.?, 1);
@@ -284,14 +284,14 @@ test "test equal immediate" {
 
 test "test less than immediate" {
     var intcode = [_]Instr{ 3,3,1107,-1,8,3,4,3,99 };
-    var comp = IntcodeComputer.init(&intcode, std.debug.failing_allocator);
+    var comp = IntcodeComputer.init(&intcode, std.testing.failing_allocator);
     comp.input = 3;
     try comp.execUntilHalt();
     expectEqual(comp.output.?, 1);
 }
 
 test "quine" {
-    var arena = std.heap.ArenaAllocator.init(std.heap.direct_allocator);
+    var arena = std.heap.ArenaAllocator.init(std.testing.allocator);
     const allocator = &arena.allocator;
     defer arena.deinit();
 
@@ -302,13 +302,13 @@ test "quine" {
 
 test "big number" {
     var intcode = [_]Instr{ 1102,34915192,34915192,7,4,7,99,0 };
-    var comp = IntcodeComputer.init(&intcode, std.debug.failing_allocator);
+    var comp = IntcodeComputer.init(&intcode, std.testing.failing_allocator);
     try comp.execUntilHalt();
 }
 
 test "big number 2" {
     var intcode = [_]Instr{ 104,1125899906842624,99 };
-    var comp = IntcodeComputer.init(&intcode, std.debug.failing_allocator);
+    var comp = IntcodeComputer.init(&intcode, std.testing.failing_allocator);
     try comp.execUntilHalt();
 
     expectEqual(comp.output.?, 1125899906842624);
@@ -325,7 +325,7 @@ pub fn main() !void {
     var ints = std.ArrayList(Instr).init(allocator);
 
     // read amp intcode into an int arraylist
-    while (try (&input_stream.stream).readUntilDelimiterOrEof(&buf, ',')) |item| {
+    while (try input_stream.readUntilDelimiterOrEof(&buf, ',')) |item| {
         // add an empty element to the input file because I don't want to modify
         // this to discard newlines
         try ints.append(std.fmt.parseInt(Instr, item, 10) catch -1);

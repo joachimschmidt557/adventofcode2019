@@ -1,8 +1,6 @@
 const std = @import("std");
 const assert = std.debug.assert;
-const SliceInStream = std.io.SliceInStream;
-const SliceOutStream = std.io.SliceOutStream;
-const NullOutStream = std.io.NullOutStream;
+const fixedBufferStream = std.io.fixedBufferStream;
 
 const ExecError = error{
     InvalidOpcode,
@@ -116,73 +114,90 @@ fn exec(intcode: []i32, input_stream: var, output_stream: var) !void {
 
 test "test exec 1" {
     var intcode = [_]i32{ 1, 0, 0, 0, 99 };
-    try exec(&intcode, &SliceInStream.init("").stream, &NullOutStream.init().stream);
+    var in_stream = fixedBufferStream("").inStream();
+    try exec(&intcode, in_stream, std.io.null_out_stream);
     assert(intcode[0] == 2);
 }
 
 test "test exec 2" {
     var intcode = [_]i32{ 2, 3, 0, 3, 99 };
-    try exec(&intcode, &SliceInStream.init("").stream, &NullOutStream.init().stream);
+    var in_stream = fixedBufferStream("").inStream();
+    try exec(&intcode, in_stream, std.io.null_out_stream);
     assert(intcode[3] == 6);
 }
 
 test "test exec 3" {
     var intcode = [_]i32{ 2, 4, 4, 5, 99, 0 };
-    try exec(&intcode, &SliceInStream.init("").stream, &NullOutStream.init().stream);
+    var in_stream = fixedBufferStream("").inStream();
+    try exec(&intcode, in_stream, std.io.null_out_stream);
     assert(intcode[5] == 9801);
 }
 
 test "test exec with different param mode" {
     var intcode = [_]i32{ 1002, 4, 3, 4, 33 };
-    try exec(&intcode, &SliceInStream.init("").stream, &NullOutStream.init().stream);
+    var in_stream = fixedBufferStream("").inStream();
+    try exec(&intcode, in_stream, std.io.null_out_stream);
     assert(intcode[4] == 99);
 }
 
 test "test exec with negative integers" {
     var intcode = [_]i32{ 1101, 100, -1, 4, 0 };
-    try exec(&intcode, &SliceInStream.init("").stream, &NullOutStream.init().stream);
+    var in_stream = fixedBufferStream("").inStream();
+    try exec(&intcode, in_stream, std.io.null_out_stream);
     assert(intcode[4] == 99);
 }
 
 test "test equal 1" {
     var intcode = [_]i32{ 3,9,8,9,10,9,4,9,99,-1,8 };
     var output_buf: [32]u8 = undefined;
-    try exec(&intcode, &SliceInStream.init("8\n").stream, &SliceOutStream.init(&output_buf).stream);
+    var in_stream = fixedBufferStream("8\n").inStream();
+    var out_stream = fixedBufferStream(&output_buf).outStream();
+    try exec(&intcode, in_stream, out_stream);
     assert(std.mem.eql(u8, "1\n", output_buf[0..2]));
 }
 
 test "test equal 2" {
     var intcode = [_]i32{ 3,9,8,9,10,9,4,9,99,-1,8 };
     var output_buf: [32]u8 = undefined;
-    try exec(&intcode, &SliceInStream.init("13\n").stream, &SliceOutStream.init(&output_buf).stream);
+    var in_stream = fixedBufferStream("13\n").inStream();
+    var out_stream = fixedBufferStream(&output_buf).outStream();
+    try exec(&intcode, in_stream, out_stream);
     assert(std.mem.eql(u8, "0\n", output_buf[0..2]));
 }
 
 test "test less than 1" {
     var intcode = [_]i32{ 3,9,7,9,10,9,4,9,99,-1,8 };
     var output_buf: [32]u8 = undefined;
-    try exec(&intcode, &SliceInStream.init("5\n").stream, &SliceOutStream.init(&output_buf).stream);
+    var in_stream = fixedBufferStream("5\n").inStream();
+    var out_stream = fixedBufferStream(&output_buf).outStream();
+    try exec(&intcode, in_stream, out_stream);
     assert(std.mem.eql(u8, "1\n", output_buf[0..2]));
 }
 
 test "test less than 2" {
     var intcode = [_]i32{ 3,9,7,9,10,9,4,9,99,-1,8 };
     var output_buf: [32]u8 = undefined;
-    try exec(&intcode, &SliceInStream.init("20\n").stream, &SliceOutStream.init(&output_buf).stream);
+    var in_stream = fixedBufferStream("20\n").inStream();
+    var out_stream = fixedBufferStream(&output_buf).outStream();
+    try exec(&intcode, in_stream, out_stream);
     assert(std.mem.eql(u8, "0\n", output_buf[0..2]));
 }
 
 test "test equal immediate" {
     var intcode = [_]i32{ 3,3,1108,-1,8,3,4,3,99 };
     var output_buf: [32]u8 = undefined;
-    try exec(&intcode, &SliceInStream.init("8\n").stream, &SliceOutStream.init(&output_buf).stream);
+    var in_stream = fixedBufferStream("8\n").inStream();
+    var out_stream = fixedBufferStream(&output_buf).outStream();
+    try exec(&intcode, in_stream, out_stream);
     assert(std.mem.eql(u8, "1\n", output_buf[0..2]));
 }
 
 test "test less than immediate" {
     var intcode = [_]i32{ 3,3,1107,-1,8,3,4,3,99 };
     var output_buf: [32]u8 = undefined;
-    try exec(&intcode, &SliceInStream.init("3\n").stream, &SliceOutStream.init(&output_buf).stream);
+    var in_stream = fixedBufferStream("3\n").inStream();
+    var out_stream = fixedBufferStream(&output_buf).outStream();
+    try exec(&intcode, in_stream, out_stream);
     assert(std.mem.eql(u8, "1\n", output_buf[0..2]));
 }
 
@@ -197,10 +212,10 @@ pub fn main() !void {
     var ints = std.ArrayList(i32).init(allocator);
 
     // read everything into an int arraylist
-    while (try (&input_stream.stream).readUntilDelimiterOrEof(&buf, ',')) |item| {
+    while (try input_stream.readUntilDelimiterOrEof(&buf, ',')) |item| {
         try ints.append(std.fmt.parseInt(i32, item, 10) catch 0);
     }
 
     // execute code
-    try exec(ints.toSlice(), &std.io.getStdIn().inStream().stream, &std.io.getStdOut().outStream().stream);
+    try exec(ints.toSlice(), &std.io.getStdIn().inStream(), &std.io.getStdOut().outStream());
 }
