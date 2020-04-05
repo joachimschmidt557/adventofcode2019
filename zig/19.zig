@@ -339,7 +339,7 @@ pub fn main() !void {
     while (y < 50) : (y += 1) {
         var x: Instr = 0;
         while (x < 50) : (x += 1) {
-            var ints_cpy = try std.mem.dupe(allocator, Instr, ints.toSlice());
+            var ints_cpy = try std.mem.dupe(allocator, Instr, ints.items);
             defer allocator.free(ints_cpy);
 
             var comp = IntcodeComputer.init(ints_cpy, allocator);

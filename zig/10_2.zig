@@ -143,7 +143,7 @@ pub const AsteroidMap = struct {
         }
 
         return Self{
-            .asteroids = asteroids.toSlice(),
+            .asteroids = asteroids.items,
         };
     }
 
@@ -166,7 +166,7 @@ pub const AsteroidMap = struct {
                 try result.append(x);
         }
 
-        return result.toSlice();
+        return result.items;
     }
 
     pub fn countDetectableAsteroids(self: Self, position: Pos) usize {
@@ -227,13 +227,13 @@ pub const AsteroidMap = struct {
         defer remaining_asteroids.deinit();
         var i: usize = 0;
         while (i < remaining_asteroids.items.len) : (i += 1) {
-            if (station.eq(remaining_asteroids.toSlice()[i])) {
+            if (station.eq(remaining_asteroids.items[i])) {
                 _ = remaining_asteroids.swapRemove(i);
             }
         }
 
         while (remaining_asteroids.items.len > 0) {
-            var this_rotation = try Self.detectableAsteroids(alloc, remaining_asteroids.toSlice(), station);
+            var this_rotation = try Self.detectableAsteroids(alloc, remaining_asteroids.items, station);
             defer alloc.free(this_rotation);
 
             // Convert asteroids to vectors
@@ -255,7 +255,7 @@ pub const AsteroidMap = struct {
             for (this_rotation) |x| {
                 i = 0;
                 while (i < remaining_asteroids.items.len) : (i += 1) {
-                    if (x.eq(remaining_asteroids.toSlice()[i])) {
+                    if (x.eq(remaining_asteroids.items[i])) {
                         _ = remaining_asteroids.swapRemove(i);
                     }
                 }
@@ -265,7 +265,7 @@ pub const AsteroidMap = struct {
             try result.appendSlice(this_rotation);
         }
 
-        return result.toSlice();
+        return result.items;
     }
 };
 

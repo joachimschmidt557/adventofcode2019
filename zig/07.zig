@@ -257,7 +257,7 @@ fn permutations(comptime T: type, alloc: *Allocator, options: []T) PermutationEr
         var remaining = ArrayList(T).fromOwnedSlice(alloc, cp);
         _ = remaining.orderedRemove(i);
 
-        for ((try permutations(T, alloc, remaining.toSlice())).toSlice()) |*p| {
+        for ((try permutations(T, alloc, remaining.items)).items) |*p| {
             try p.insert(0, opt);
             try result.append(p.*);
         }
@@ -314,21 +314,21 @@ fn findMaxOutput(alloc: *Allocator, amps_orig: []const Amp) !i32 {
     var phases = [_]i32{ 0, 1, 2, 3, 4 };
     var max_perm: ?[]i32 = null;
     var max_output: ?i32 = null;
-    for ((try permutations(i32, alloc, &phases)).toSlice()) |perm| {
+    for ((try permutations(i32, alloc, &phases)).items) |perm| {
         // reset amps intcode
         for (amps) |*a, i| {
             std.mem.copy(i32, a.*, amps_orig[i]);
         }
 
         // run
-        const output = try runAmps(amps, perm.toSlice());
+        const output = try runAmps(amps, perm.items);
         if (max_output) |max| {
             if (output > max) {
-                max_perm = perm.toSlice();
+                max_perm = perm.items;
                 max_output = output;
             }
         } else {
-            max_perm = perm.toSlice();
+            max_perm = perm.items;
             max_output = output;
         }
     }

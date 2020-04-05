@@ -36,7 +36,7 @@ pub fn main() !void {
     }
 
     var sum: u32 = 0;
-    for (modules.toSlice()) |mod| {
+    for (modules.items) |mod| {
         sum += mod.requiredFuel();
     }
     std.debug.warn("{}\n", .{sum});

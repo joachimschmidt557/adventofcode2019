@@ -115,7 +115,7 @@ pub const AsteroidMap = struct {
         }
 
         return Self{
-            .asteroids = asteroids.toSlice(),
+            .asteroids = asteroids.items,
         };
     }
 

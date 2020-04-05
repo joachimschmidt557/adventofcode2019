@@ -67,7 +67,7 @@ const OrbitMap = struct {
 
         // Find the common planet of both bodies
         var common_planet: usize = 0;
-        for (orig_hier.toSlice()) |body, i| {
+        for (orig_hier.items) |body, i| {
             if (std.mem.eql(u8, body, dest_hier.at(i))) {
                 common_planet = i;
             } else {

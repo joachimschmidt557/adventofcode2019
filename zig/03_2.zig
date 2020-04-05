@@ -281,7 +281,7 @@ pub fn main() !void {
             try instructions.append(try Instruction.fromStr(itm));
         }
 
-        try paths.append(try Path.fromInstructions(allocator, instructions.toSlice()));
+        try paths.append(try Path.fromInstructions(allocator, instructions.items));
     } else |err| switch (err) {
         error.EndOfStream => {},
         else => return err,

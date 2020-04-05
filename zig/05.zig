@@ -131,5 +131,5 @@ pub fn main() !void {
     }
 
     // execute code
-    try exec(ints.toSlice(), &std.io.getStdIn().inStream(), &std.io.getStdOut().outStream());
+    try exec(ints.items, &std.io.getStdIn().inStream(), &std.io.getStdOut().outStream());
 }

@@ -190,9 +190,9 @@ pub fn main() !void {
     const steps = 1000;
     var i: u32 = 0;
     while (i < steps) : (i += 1) {
-        simulateStep(moons.toSlice());
+        simulateStep(moons.items);
     }
 
     // output total energy
-    std.debug.warn("total energy after {} steps: {}\n", .{ steps, totalEnergy(moons.toSlice()) });
+    std.debug.warn("total energy after {} steps: {}\n", .{ steps, totalEnergy(moons.items) });
 }

@@ -65,7 +65,7 @@ pub fn main() !void {
     ints.set(1, 12);
     ints.set(2, 2);
 
-    try exec(ints.toSlice());
+    try exec(ints.items);
 
     // output entry at position 0
     std.debug.warn("value at position 0: {}\n", .{ints.at(0)});

@@ -332,7 +332,7 @@ pub fn main() !void {
     }
 
     // run
-    var comp = IntcodeComputer.init(ints.toSlice(), allocator);
+    var comp = IntcodeComputer.init(ints.items, allocator);
     comp.input = 1;
     try comp.execUntilHalt();
     std.debug.warn("output: {}\n", .{ comp.output });

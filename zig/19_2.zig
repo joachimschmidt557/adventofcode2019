@@ -377,12 +377,12 @@ pub fn main() !void {
         try ints.append(std.fmt.parseInt(Instr, item, 10) catch 0);
     }
 
-    std.debug.warn("le for 4: {}\n", .{ try findLowerEdge(allocator, ints.toSlice(), 40) });
+    std.debug.warn("le for 4: {}\n", .{ try findLowerEdge(allocator, ints.items, 40) });
 
     // scan area very coarse-grained
     var x: Instr = 10;
     while (true) : (x *= 2) {
-        if (try squareFits(allocator, ints.toSlice(), x)) break;
+        if (try squareFits(allocator, ints.items, x)) break;
     }
 
     // binary search to find exact spot
@@ -392,18 +392,18 @@ pub fn main() !void {
 
     while (hi >= lo) {
         mid = lo + @divTrunc(hi - lo, 2);
-        if (try squareFits(allocator, ints.toSlice(), mid)) {
+        if (try squareFits(allocator, ints.items, mid)) {
             hi = mid - 1;
         } else {
             lo = mid + 1;
         }
     }
 
-    std.debug.assert(try squareFits(allocator, ints.toSlice(), lo));
-    std.debug.assert(!try squareFits(allocator, ints.toSlice(), hi));
+    std.debug.assert(try squareFits(allocator, ints.items, lo));
+    std.debug.assert(!try squareFits(allocator, ints.items, hi));
 
     const res_x = lo;
-    const res_y = (try findLowerEdge(allocator, ints.toSlice(), res_x)) - 99;
+    const res_y = (try findLowerEdge(allocator, ints.items, res_x)) - 99;
 
     std.debug.warn("result: x={} y={} n={}\n", .{ res_x, res_y, res_x * 10000 + res_y });
 }

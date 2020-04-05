@@ -403,7 +403,7 @@ pub fn main() !void {
         try ints.append(std.fmt.parseInt(Instr, item, 10) catch 0);
     }
 
-    var comp = IntcodeComputer.init(ints.toSlice(), allocator);
+    var comp = IntcodeComputer.init(ints.items, allocator);
     const img = try getScaffoldImage(allocator, &comp);
     const intersections = try getIntersections(allocator, img);
 

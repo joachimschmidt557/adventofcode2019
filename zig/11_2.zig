@@ -557,7 +557,7 @@ pub fn main() !void {
     }
 
     // run
-    var comp = IntcodeComputer.init(ints.toSlice(), allocator);
+    var comp = IntcodeComputer.init(ints.items, allocator);
     var robot = PaintRobot.init(allocator, comp);
 
     const painted_panels = try robot.paint();

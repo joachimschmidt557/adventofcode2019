@@ -435,7 +435,7 @@ pub fn main() !void {
     }
 
     // run
-    var comp = IntcodeComputer.init(ints.toSlice(), allocator);
+    var comp = IntcodeComputer.init(ints.items, allocator);
     var cabinet = ArcadeCabinet.init(allocator, comp);
 
     try cabinet.startGame();

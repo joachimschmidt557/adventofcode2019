@@ -237,7 +237,7 @@ const UniQueue = struct {
     }
 
     pub fn push(self: *Self, c: ChemicalQuantity) !void {
-        for (self.internal.toSlice()) |*x| {
+        for (self.internal.items) |*x| {
             if (std.mem.eql(u8, x.chem, c.chem)) {
                 x.quant += c.quant;
                 return;
@@ -268,7 +268,7 @@ fn requiredOre(alloc: *Allocator, reactions: []const Reaction) !usize {
         }
     }
 
-    return queue.internal.toSlice()[0].quant;
+    return queue.internal.items[0].quant;
 }
 
 test "requirements for example reactions" {

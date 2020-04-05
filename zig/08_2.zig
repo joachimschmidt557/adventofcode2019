@@ -74,7 +74,7 @@ const Image = struct {
         }
 
         return Self{
-            .layers = layers.toSlice(),
+            .layers = layers.items,
             .width = w,
         };
     }
