@@ -272,7 +272,7 @@ fn runAmps(amps: []IntcodeComputer, phase_sequence: []i32) !i32 {
 
 test "run amps" {
     const amp = [_]i32{ 3,15,3,16,1002,16,10,16,1,16,15,15,4,15,99,0,0 };
-    var arena = std.heap.ArenaAllocator.init(std.heap.direct_allocator);
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     const allocator = &arena.allocator;
     defer arena.deinit();
 
@@ -289,7 +289,7 @@ test "run amps" {
 test "run amps with feedback" {
     const amp = [_]i32{ 3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,
                        27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5 };
-    var arena = std.heap.ArenaAllocator.init(std.heap.direct_allocator);
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     const allocator = &arena.allocator;
     defer arena.deinit();
 
@@ -326,33 +326,33 @@ fn permutations(comptime T: type, alloc: *Allocator, options: []T) PermutationEr
 }
 
 test "empty permutation" {
-    var arena = std.heap.ArenaAllocator.init(std.heap.direct_allocator);
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     const allocator = &arena.allocator;
     defer arena.deinit();
 
     var options = [_]u8{};
     const perm = try permutations(u8, allocator, &options);
-    assert(perm.len == 1);
+    assert(perm.items.len == 1);
 }
 
 test "permutation with 2 elements" {
-    var arena = std.heap.ArenaAllocator.init(std.heap.direct_allocator);
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     const allocator = &arena.allocator;
     defer arena.deinit();
 
     var options = [_]u8{ 0, 1 };
     const perm = try permutations(u8, allocator, &options);
-    assert(perm.len == 2);
+    assert(perm.items.len == 2);
 }
 
 test "permutation with 4 elements" {
-    var arena = std.heap.ArenaAllocator.init(std.heap.direct_allocator);
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     const allocator = &arena.allocator;
     defer arena.deinit();
 
     var options = [_]u8{ 0, 1, 2, 3 };
     const perm = try permutations(u8, allocator, &options);
-    assert(perm.len == 24);
+    assert(perm.items.len == 24);
 }
 
 fn findMaxOutput(alloc: *Allocator, amps_orig: []const Intcode) !i32 {
@@ -399,7 +399,7 @@ fn findMaxOutput(alloc: *Allocator, amps_orig: []const Intcode) !i32 {
 test "max output 1" {
     const amp = [_]i32{ 3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,
                        27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5 };
-    var arena = std.heap.ArenaAllocator.init(std.heap.direct_allocator);
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     const allocator = &arena.allocator;
     defer arena.deinit();
 
@@ -417,7 +417,7 @@ test "max output 2" {
     const amp = [_]i32{ 3,52,1001,52,-5,52,3,53,1,52,56,54,1007,54,5,55,1005,55,26,1001,54,
                        -5,54,1105,1,12,1,53,54,53,1008,54,0,55,1001,55,1,55,2,53,55,53,4,
                        53,1001,56,-1,56,1005,56,6,99,0,0,0,0,10 };
-    var arena = std.heap.ArenaAllocator.init(std.heap.direct_allocator);
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     const allocator = &arena.allocator;
     defer arena.deinit();
 
@@ -432,7 +432,7 @@ test "max output 2" {
 }
 
 pub fn main() !void {
-    var arena = std.heap.ArenaAllocator.init(std.heap.direct_allocator);
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     const allocator = &arena.allocator;
     defer arena.deinit();
 

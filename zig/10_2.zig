@@ -226,13 +226,13 @@ pub const AsteroidMap = struct {
         try remaining_asteroids.appendSlice(self.asteroids);
         defer remaining_asteroids.deinit();
         var i: usize = 0;
-        while (i < remaining_asteroids.len) : (i += 1) {
+        while (i < remaining_asteroids.items.len) : (i += 1) {
             if (station.eq(remaining_asteroids.toSlice()[i])) {
                 _ = remaining_asteroids.swapRemove(i);
             }
         }
 
-        while (remaining_asteroids.len > 0) {
+        while (remaining_asteroids.items.len > 0) {
             var this_rotation = try Self.detectableAsteroids(alloc, remaining_asteroids.toSlice(), station);
             defer alloc.free(this_rotation);
 
@@ -254,7 +254,7 @@ pub const AsteroidMap = struct {
             // Remove from remaining asteroids
             for (this_rotation) |x| {
                 i = 0;
-                while (i < remaining_asteroids.len) : (i += 1) {
+                while (i < remaining_asteroids.items.len) : (i += 1) {
                     if (x.eq(remaining_asteroids.toSlice()[i])) {
                         _ = remaining_asteroids.swapRemove(i);
                     }

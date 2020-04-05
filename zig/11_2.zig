@@ -49,18 +49,18 @@ pub const Mem = struct {
     }
 
     pub fn get(self: Self, pos: usize) Instr {
-        return if (pos < self.backend.len) self.backend.at(pos) else 0;
+        return if (pos < self.backend.items.len) self.backend.at(pos) else 0;
     }
 
     pub fn set(self: *Self, pos: usize, val: Instr) !void {
-        if (pos < self.backend.len) {
+        if (pos < self.backend.items.len) {
             self.backend.set(pos, val);
         } else {
-            const old_len = self.backend.len;
+            const old_len = self.backend.items.len;
             try self.backend.resize(pos + 1);
 
             var i: usize = old_len;
-            while (i < self.backend.len) : (i += 1) {
+            while (i < self.backend.items.len) : (i += 1) {
                 self.backend.set(i, 0);
             }
 
@@ -292,7 +292,7 @@ test "test less than immediate" {
 }
 
 test "quine" {
-    var arena = std.heap.ArenaAllocator.init(std.heap.direct_allocator);
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     const allocator = &arena.allocator;
     defer arena.deinit();
 
@@ -433,7 +433,7 @@ pub const Panel = struct {
 };
 
 test "panel" {
-    var arena = std.heap.ArenaAllocator.init(std.heap.direct_allocator);
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     const allocator = &arena.allocator;
     defer arena.deinit();
 
@@ -540,7 +540,7 @@ pub const PaintRobot = struct {
 };
 
 pub fn main() !void {
-    var arena = std.heap.ArenaAllocator.init(std.heap.direct_allocator);
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     const allocator = &arena.allocator;
     defer arena.deinit();
 

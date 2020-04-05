@@ -76,8 +76,8 @@ const OrbitMap = struct {
         }
 
         // Return the final distance
-        const dist_orig_common = orig_hier.len - common_planet - 2;
-        const dist_common_dest = dest_hier.len - common_planet - 2;
+        const dist_orig_common = orig_hier.items.len - common_planet - 2;
+        const dist_common_dest = dest_hier.items.len - common_planet - 2;
         return dist_orig_common + dist_common_dest;
     }
 };

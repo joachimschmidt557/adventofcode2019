@@ -132,7 +132,7 @@ const Line = struct {
 
         // Remove (0,0) as valid intersections
         var i: usize = 0;
-        while (i < result.len) {
+        while (i < result.items.len) {
             if (result.at(i).x == 0 and result.at(i).y == 0) {
                 _ = result.orderedRemove(i);
             } else {
@@ -234,7 +234,7 @@ const Path = struct {
 };
 
 test "test example path" {
-    var arena = std.heap.ArenaAllocator.init(std.heap.direct_allocator);
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     const allocator = &arena.allocator;
     defer arena.deinit();
 
@@ -264,7 +264,7 @@ test "test example path" {
 }
 
 pub fn main() !void {
-    var arena = std.heap.ArenaAllocator.init(std.heap.direct_allocator);
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     const allocator = &arena.allocator;
     defer arena.deinit();
 
@@ -272,7 +272,6 @@ pub fn main() !void {
 
     const input_file = try std.fs.cwd().openFile("input03.txt", .{});
     var input_stream = input_file.inStream();
-    var buf = try std.Buffer.initSize(allocator, std.mem.page_size);
     while (input_stream.readUntilDelimiterAlloc(allocator, '\n', 1024)) |line| {
         var instructions = ArrayList(Instruction).init(allocator);
         defer instructions.deinit();

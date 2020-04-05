@@ -231,7 +231,7 @@ fn runAmps(amps: []Amp, phase_sequence: []i32) !i32 {
 
 test "run amps" {
     const amp = [_]i32{ 3,15,3,16,1002,16,10,16,1,16,15,15,4,15,99,0,0 };
-    var arena = std.heap.ArenaAllocator.init(std.heap.direct_allocator);
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     const allocator = &arena.allocator;
     defer arena.deinit();
 
@@ -267,33 +267,33 @@ fn permutations(comptime T: type, alloc: *Allocator, options: []T) PermutationEr
 }
 
 test "empty permutation" {
-    var arena = std.heap.ArenaAllocator.init(std.heap.direct_allocator);
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     const allocator = &arena.allocator;
     defer arena.deinit();
 
     var options = [_]u8{};
     const perm = try permutations(u8, allocator, &options);
-    assert(perm.len == 1);
+    assert(perm.items.len == 1);
 }
 
 test "permutation with 2 elements" {
-    var arena = std.heap.ArenaAllocator.init(std.heap.direct_allocator);
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     const allocator = &arena.allocator;
     defer arena.deinit();
 
     var options = [_]u8{ 0, 1 };
     const perm = try permutations(u8, allocator, &options);
-    assert(perm.len == 2);
+    assert(perm.items.len == 2);
 }
 
 test "permutation with 4 elements" {
-    var arena = std.heap.ArenaAllocator.init(std.heap.direct_allocator);
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     const allocator = &arena.allocator;
     defer arena.deinit();
 
     var options = [_]u8{ 0, 1, 2, 3 };
     const perm = try permutations(u8, allocator, &options);
-    assert(perm.len == 24);
+    assert(perm.items.len == 24);
 }
 
 fn findMaxOutput(alloc: *Allocator, amps_orig: []const Amp) !i32 {
@@ -338,7 +338,7 @@ fn findMaxOutput(alloc: *Allocator, amps_orig: []const Amp) !i32 {
 
 test "max output 1" {
     const amp = [_]i32{ 3,15,3,16,1002,16,10,16,1,16,15,15,4,15,99,0,0 };
-    var arena = std.heap.ArenaAllocator.init(std.heap.direct_allocator);
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     const allocator = &arena.allocator;
     defer arena.deinit();
 
@@ -355,7 +355,7 @@ test "max output 1" {
 test "max output 2" {
     const amp = [_]i32{ 3,23,3,24,1002,24,10,24,1002,23,-1,23,
                        101,5,23,23,1,24,23,23,4,23,99,0,0 };
-    var arena = std.heap.ArenaAllocator.init(std.heap.direct_allocator);
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     const allocator = &arena.allocator;
     defer arena.deinit();
 
@@ -370,7 +370,7 @@ test "max output 2" {
 }
 
 pub fn main() !void {
-    var arena = std.heap.ArenaAllocator.init(std.heap.direct_allocator);
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     const allocator = &arena.allocator;
     defer arena.deinit();
 
