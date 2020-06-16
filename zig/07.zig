@@ -73,7 +73,7 @@ fn exec(intcode: []i32, input_stream: var, output_stream: var) !void {
             },
             4 => {
                 const val_x = try getParam(intcode, pos, 0, paramMode(instr, 0));
-                try output_stream.print("{}\n", .{ val_x });
+                try output_stream.print("{}\n", .{val_x});
                 pos += 2;
             },
             5 => {
@@ -109,7 +109,7 @@ fn exec(intcode: []i32, input_stream: var, output_stream: var) !void {
                 pos += 4;
             },
             else => {
-                std.debug.warn("pos: {}, instr: {}\n", .{ pos, intcode[pos]});
+                std.debug.warn("pos: {}, instr: {}\n", .{ pos, intcode[pos] });
                 return error.InvalidOpcode;
             },
         }
@@ -152,7 +152,7 @@ test "test exec with negative integers" {
 }
 
 test "test equal 1" {
-    var intcode = [_]i32{ 3,9,8,9,10,9,4,9,99,-1,8 };
+    var intcode = [_]i32{ 3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8 };
     var output_buf: [32]u8 = undefined;
     var in_stream = fixedBufferStream("8\n").inStream();
     var out_stream = fixedBufferStream(&output_buf).outStream();
@@ -161,7 +161,7 @@ test "test equal 1" {
 }
 
 test "test equal 2" {
-    var intcode = [_]i32{ 3,9,8,9,10,9,4,9,99,-1,8 };
+    var intcode = [_]i32{ 3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8 };
     var output_buf: [32]u8 = undefined;
     var in_stream = fixedBufferStream("13\n").inStream();
     var out_stream = fixedBufferStream(&output_buf).outStream();
@@ -170,7 +170,7 @@ test "test equal 2" {
 }
 
 test "test less than 1" {
-    var intcode = [_]i32{ 3,9,7,9,10,9,4,9,99,-1,8 };
+    var intcode = [_]i32{ 3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8 };
     var output_buf: [32]u8 = undefined;
     var in_stream = fixedBufferStream("5\n").inStream();
     var out_stream = fixedBufferStream(&output_buf).outStream();
@@ -179,7 +179,7 @@ test "test less than 1" {
 }
 
 test "test less than 2" {
-    var intcode = [_]i32{ 3,9,7,9,10,9,4,9,99,-1,8 };
+    var intcode = [_]i32{ 3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8 };
     var output_buf: [32]u8 = undefined;
     var in_stream = fixedBufferStream("20\n").inStream();
     var out_stream = fixedBufferStream(&output_buf).outStream();
@@ -188,7 +188,7 @@ test "test less than 2" {
 }
 
 test "test equal immediate" {
-    var intcode = [_]i32{ 3,3,1108,-1,8,3,4,3,99 };
+    var intcode = [_]i32{ 3, 3, 1108, -1, 8, 3, 4, 3, 99 };
     var output_buf: [32]u8 = undefined;
     var in_stream = fixedBufferStream("8\n").inStream();
     var out_stream = fixedBufferStream(&output_buf).outStream();
@@ -197,7 +197,7 @@ test "test equal immediate" {
 }
 
 test "test less than immediate" {
-    var intcode = [_]i32{ 3,3,1107,-1,8,3,4,3,99 };
+    var intcode = [_]i32{ 3, 3, 1107, -1, 8, 3, 4, 3, 99 };
     var output_buf: [32]u8 = undefined;
     var in_stream = fixedBufferStream("3\n").inStream();
     var out_stream = fixedBufferStream(&output_buf).outStream();
@@ -218,7 +218,7 @@ fn runAmp(intcode: Amp, phase: i32, input: i32) !i32 {
 
     try exec(intcode, input_stream, output_stream.outStream());
 
-    return try std.fmt.parseInt(i32, output_buf[0..output_stream.bytes_written - 1], 10);
+    return try std.fmt.parseInt(i32, output_buf[0 .. output_stream.bytes_written - 1], 10);
 }
 
 fn runAmps(amps: []Amp, phase_sequence: []i32) !i32 {
@@ -230,7 +230,7 @@ fn runAmps(amps: []Amp, phase_sequence: []i32) !i32 {
 }
 
 test "run amps" {
-    const amp = [_]i32{ 3,15,3,16,1002,16,10,16,1,16,15,15,4,15,99,0,0 };
+    const amp = [_]i32{ 3, 15, 3, 16, 1002, 16, 10, 16, 1, 16, 15, 15, 4, 15, 99, 0, 0 };
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     const allocator = &arena.allocator;
     defer arena.deinit();
@@ -240,7 +240,7 @@ test "run amps" {
         a.* = try std.mem.dupe(allocator, i32, &amp);
     }
 
-    var phase_sequence = [_]i32{ 4,3,2,1,0 };
+    var phase_sequence = [_]i32{ 4, 3, 2, 1, 0 };
     assert((try runAmps(&amps, &phase_sequence)) == 43210);
 }
 
@@ -337,7 +337,7 @@ fn findMaxOutput(alloc: *Allocator, amps_orig: []const Amp) !i32 {
 }
 
 test "max output 1" {
-    const amp = [_]i32{ 3,15,3,16,1002,16,10,16,1,16,15,15,4,15,99,0,0 };
+    const amp = [_]i32{ 3, 15, 3, 16, 1002, 16, 10, 16, 1, 16, 15, 15, 4, 15, 99, 0, 0 };
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     const allocator = &arena.allocator;
     defer arena.deinit();
@@ -353,8 +353,11 @@ test "max output 1" {
 }
 
 test "max output 2" {
-    const amp = [_]i32{ 3,23,3,24,1002,24,10,24,1002,23,-1,23,
-                       101,5,23,23,1,24,23,23,4,23,99,0,0 };
+    const amp = [_]i32{
+        3,   23, 3,  24, 1002, 24, 10, 24, 1002, 23, -1, 23,
+        101, 5,  23, 23, 1,    24, 23, 23, 4,    23, 99, 0,
+        0,
+    };
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     const allocator = &arena.allocator;
     defer arena.deinit();
@@ -387,9 +390,9 @@ pub fn main() !void {
     // duplicate amps 5 times
     var amps: [5]Amp = undefined;
     for (amps) |*a| {
-        a.* = try std.mem.dupe(allocator, i32, ints.toSliceConst());
+        a.* = try std.mem.dupe(allocator, i32, ints.items);
     }
 
     // try combinations of phase sequences
-    std.debug.warn("max achievable output: {}\n", .{ try findMaxOutput(allocator, &amps) });
+    std.debug.warn("max achievable output: {}\n", .{try findMaxOutput(allocator, &amps)});
 }

@@ -1,7 +1,7 @@
 const std = @import("std");
 const assert = std.debug.assert;
 
-const ExecError = error{ InvalidOpcode };
+const ExecError = error{InvalidOpcode};
 
 fn exec(intcode: []i32) !void {
     var pos: usize = 0;
@@ -46,7 +46,6 @@ test "test exec 3" {
     assert(intcode[5] == 9801);
 }
 
-
 pub fn main() !void {
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     const allocator = &arena.allocator;
@@ -71,7 +70,7 @@ pub fn main() !void {
     outer: while (noun < max_search) : (noun += 1) {
         verb = 0;
         inner: while (verb < max_search) : (verb += 1) {
-            const copy = try std.mem.dupe(allocator, i32, ints.toSliceConst());
+            const copy = try std.mem.dupe(allocator, i32, ints.items);
             defer allocator.free(copy);
 
             copy[1] = noun;
@@ -83,6 +82,6 @@ pub fn main() !void {
     }
 
     // output solution
-    std.debug.warn("noun: {} verb: {}\n", .{noun, verb});
+    std.debug.warn("noun: {} verb: {}\n", .{ noun, verb });
     std.debug.warn("100 * noun + verb = {}\n", .{100 * noun + verb});
 }

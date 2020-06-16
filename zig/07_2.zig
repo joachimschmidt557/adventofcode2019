@@ -97,7 +97,7 @@ pub const IntcodeComputer = struct {
                 } else {
                     self.state = State.AwaitingInput;
                 }
-           },
+            },
             4 => {
                 const val_x = try self.getParam(0, paramMode(instr, 0));
                 if (self.output) |_| {
@@ -192,7 +192,7 @@ test "test exec with negative integers" {
 }
 
 test "test equal 1" {
-    var intcode = [_]i32{ 3,9,8,9,10,9,4,9,99,-1,8 };
+    var intcode = [_]i32{ 3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8 };
     var comp = IntcodeComputer.init(&intcode);
     comp.input = 8;
     try comp.execUntilHalt();
@@ -200,7 +200,7 @@ test "test equal 1" {
 }
 
 test "test equal 2" {
-    var intcode = [_]i32{ 3,9,8,9,10,9,4,9,99,-1,8 };
+    var intcode = [_]i32{ 3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8 };
     var comp = IntcodeComputer.init(&intcode);
     comp.input = 13;
     try comp.execUntilHalt();
@@ -208,7 +208,7 @@ test "test equal 2" {
 }
 
 test "test less than 1" {
-    var intcode = [_]i32{ 3,9,7,9,10,9,4,9,99,-1,8 };
+    var intcode = [_]i32{ 3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8 };
     var comp = IntcodeComputer.init(&intcode);
     comp.input = 5;
     try comp.execUntilHalt();
@@ -216,7 +216,7 @@ test "test less than 1" {
 }
 
 test "test less than 2" {
-    var intcode = [_]i32{ 3,9,7,9,10,9,4,9,99,-1,8 };
+    var intcode = [_]i32{ 3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8 };
     var comp = IntcodeComputer.init(&intcode);
     comp.input = 20;
     try comp.execUntilHalt();
@@ -224,7 +224,7 @@ test "test less than 2" {
 }
 
 test "test equal immediate" {
-    var intcode = [_]i32{ 3,3,1108,-1,8,3,4,3,99 };
+    var intcode = [_]i32{ 3, 3, 1108, -1, 8, 3, 4, 3, 99 };
     var comp = IntcodeComputer.init(&intcode);
     comp.input = 8;
     try comp.execUntilHalt();
@@ -232,7 +232,7 @@ test "test equal immediate" {
 }
 
 test "test less than immediate" {
-    var intcode = [_]i32{ 3,3,1107,-1,8,3,4,3,99 };
+    var intcode = [_]i32{ 3, 3, 1107, -1, 8, 3, 4, 3, 99 };
     var comp = IntcodeComputer.init(&intcode);
     comp.input = 3;
     try comp.execUntilHalt();
@@ -267,11 +267,11 @@ fn runAmps(amps: []IntcodeComputer, phase_sequence: []i32) !i32 {
             x = try runAmpNoPhase(amp, x);
         }
     }
-   return x;
+    return x;
 }
 
 test "run amps" {
-    const amp = [_]i32{ 3,15,3,16,1002,16,10,16,1,16,15,15,4,15,99,0,0 };
+    const amp = [_]i32{ 3, 15, 3, 16, 1002, 16, 10, 16, 1, 16, 15, 15, 4, 15, 99, 0, 0 };
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     const allocator = &arena.allocator;
     defer arena.deinit();
@@ -281,14 +281,16 @@ test "run amps" {
         a.* = IntcodeComputer.init(try std.mem.dupe(allocator, i32, &amp));
     }
 
-    var phase_sequence = [_]i32{ 4,3,2,1,0 };
+    var phase_sequence = [_]i32{ 4, 3, 2, 1, 0 };
     const expected: i32 = 43210;
     expectEqual(expected, try runAmps(&amps, &phase_sequence));
 }
 
 test "run amps with feedback" {
-    const amp = [_]i32{ 3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,
-                       27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5 };
+    const amp = [_]i32{
+        3,  26, 1001, 26,   -4, 26, 3,  27,   1002, 27, 2,  27, 1, 27, 26,
+        27, 4,  27,   1001, 28, -1, 28, 1005, 28,   6,  99, 0,  0, 5,
+    };
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     const allocator = &arena.allocator;
     defer arena.deinit();
@@ -298,7 +300,7 @@ test "run amps with feedback" {
         a.* = IntcodeComputer.init(try std.mem.dupe(allocator, i32, &amp));
     }
 
-    var phase_sequence = [_]i32{ 9,8,7,6,5 };
+    var phase_sequence = [_]i32{ 9, 8, 7, 6, 5 };
     const expected: i32 = 139629729;
     expectEqual(expected, try runAmps(&amps, &phase_sequence));
 }
@@ -397,8 +399,10 @@ fn findMaxOutput(alloc: *Allocator, amps_orig: []const Intcode) !i32 {
 }
 
 test "max output 1" {
-    const amp = [_]i32{ 3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,
-                       27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5 };
+    const amp = [_]i32{
+        3,  26, 1001, 26,   -4, 26, 3,  27,   1002, 27, 2,  27, 1, 27, 26,
+        27, 4,  27,   1001, 28, -1, 28, 1005, 28,   6,  99, 0,  0, 5,
+    };
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     const allocator = &arena.allocator;
     defer arena.deinit();
@@ -414,9 +418,11 @@ test "max output 1" {
 }
 
 test "max output 2" {
-    const amp = [_]i32{ 3,52,1001,52,-5,52,3,53,1,52,56,54,1007,54,5,55,1005,55,26,1001,54,
-                       -5,54,1105,1,12,1,53,54,53,1008,54,0,55,1001,55,1,55,2,53,55,53,4,
-                       53,1001,56,-1,56,1005,56,6,99,0,0,0,0,10 };
+    const amp = [_]i32{
+        3,  52, 1001, 52, -5, 52, 3,    53, 1,  52,   56, 54, 1007, 54,   5,  55, 1005, 55, 26, 1001, 54,
+        -5, 54, 1105, 1,  12, 1,  53,   54, 53, 1008, 54, 0,  55,   1001, 55, 1,  55,   2,  53, 55,   53,
+        4,  53, 1001, 56, -1, 56, 1005, 56, 6,  99,   0,  0,  0,    0,    10,
+    };
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     const allocator = &arena.allocator;
     defer arena.deinit();
@@ -451,9 +457,9 @@ pub fn main() !void {
     // duplicate amps 5 times
     var amps: [5]Intcode = undefined;
     for (amps) |*a| {
-        a.* = try std.mem.dupe(allocator, i32, ints.toSliceConst());
+        a.* = try std.mem.dupe(allocator, i32, ints.items);
     }
 
     // try combinations of phase sequences
-    std.debug.warn("max achievable output: {}\n", .{ try findMaxOutput(allocator, &amps) });
+    std.debug.warn("max achievable output: {}\n", .{try findMaxOutput(allocator, &amps)});
 }

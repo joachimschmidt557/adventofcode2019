@@ -7,9 +7,7 @@ const Buffer = std.Buffer;
 const fixedBufferStream = std.io.fixedBufferStream;
 const assert = std.debug.assert;
 
-const OrbitMapParseError = error{
-    FormatError,
-};
+const OrbitMapParseError = error{FormatError};
 
 const OrbitMap = struct {
     alloc: *Allocator,
@@ -32,7 +30,7 @@ const OrbitMap = struct {
         };
 
         while (stream.readUntilDelimiterAlloc(allocator, '\n', 1024)) |line| {
-            var iter = std.mem.separate(line, ")");
+            var iter = std.mem.split(line, ")");
             const orbitee = iter.next() orelse return error.FormatError;
             const orbiter = iter.next() orelse return error.FormatError;
 
@@ -68,7 +66,7 @@ const OrbitMap = struct {
         // Find the common planet of both bodies
         var common_planet: usize = 0;
         for (orig_hier.items) |body, i| {
-            if (std.mem.eql(u8, body, dest_hier.at(i))) {
+            if (std.mem.eql(u8, body, dest_hier.items[i])) {
                 common_planet = i;
             } else {
                 break;
@@ -89,19 +87,19 @@ test "count orbits" {
 
     var mem_stream = fixedBufferStream(
         \\COM)B
-            \\B)C
-            \\C)D
-            \\D)E
-            \\E)F
-            \\B)G
-            \\G)H
-            \\D)I
-            \\E)J
-            \\J)K
-            \\K)L
-            \\K)YOU
-            \\I)SAN
-            \\ 
+        \\B)C
+        \\C)D
+        \\D)E
+        \\E)F
+        \\B)G
+        \\G)H
+        \\D)I
+        \\E)J
+        \\J)K
+        \\K)L
+        \\K)YOU
+        \\I)SAN
+        \\ 
     );
     const stream = mem_stream.inStream();
     var orbit_map = try OrbitMap.fromStream(allocator, stream);
@@ -119,7 +117,5 @@ pub fn main() !void {
 
     var orbit_map = try OrbitMap.fromStream(allocator, input_stream);
 
-    std.debug.warn("distance between you and santa: {}\n", .{
-        try orbit_map.distance("YOU", "SAN")
-    });
+    std.debug.warn("distance between you and santa: {}\n", .{try orbit_map.distance("YOU", "SAN")});
 }

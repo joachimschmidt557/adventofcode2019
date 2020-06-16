@@ -69,8 +69,7 @@ pub fn obstructs(origin: Pos, dest: Pos, obstr: Pos) bool {
         return origin_obstr_y == 0;
     } else {
         const epsilon = 0.000001;
-        return approxEq(f64, divToFloat(origin_obstr_x, origin_dest_x),
-                        divToFloat(origin_obstr_y, origin_dest_y), epsilon);
+        return approxEq(f64, divToFloat(origin_obstr_x, origin_dest_x), divToFloat(origin_obstr_y, origin_dest_y), epsilon);
     }
 }
 
@@ -88,8 +87,7 @@ test "obstruction" {
 }
 
 fn rotatedAngle(vector: Pos) f64 {
-    const angle = math.atan2(f64, @intToFloat(f64, -vector.y),
-                                 @intToFloat(f64, vector.x));
+    const angle = math.atan2(f64, @intToFloat(f64, -vector.y), @intToFloat(f64, vector.x));
     const angle_2pi = if (angle < 0.0) 2.0 * math.pi + angle else angle;
 
     const rotated = @mod((-angle_2pi + (math.pi / 2.0)), (2.0 * math.pi));
@@ -106,7 +104,7 @@ test "rotatedAngle" {
     expect(approxEq(f64, rotatedAngle(Pos{ .x = -1, .y = 0 }), 3.0 * math.pi / 2.0, epsilon));
 }
 
-fn lessThan(lhs: Pos, rhs: Pos) bool {
+fn lessThan(context: void, lhs: Pos, rhs: Pos) bool {
     const lhs_angle = rotatedAngle(lhs);
     const rhs_angle = rotatedAngle(rhs);
 
@@ -131,7 +129,7 @@ pub const AsteroidMap = struct {
                     }),
                     '.' => {},
                     else => {
-                        std.debug.warn("invalid char: {}\n", .{ c });
+                        std.debug.warn("invalid char: {}\n", .{c});
                         return error.InvalidMapCharacter;
                     },
                 }
@@ -243,7 +241,7 @@ pub const AsteroidMap = struct {
             }
 
             // Sort asteroids to remove
-            std.sort.sort(Pos, this_rotation, lessThan);
+            std.sort.sort(Pos, this_rotation, {}, lessThan);
 
             // Convert vectors back to asteroids
             for (this_rotation) |*x| {
@@ -276,9 +274,9 @@ test "read asteroid map" {
 
     var input_stream = fixedBufferStream(
         \\..#
-            \\#.#
-            \\...
-            \\ 
+        \\#.#
+        \\...
+        \\ 
     ).inStream();
 
     const map = try AsteroidMap.fromStream(input_stream, allocator);
@@ -295,11 +293,11 @@ test "count visible asteroids" {
 
     var input_stream = fixedBufferStream(
         \\.#..#
-            \\.....
-            \\#####
-            \\....#
-            \\...##
-            \\ 
+        \\.....
+        \\#####
+        \\....#
+        \\...##
+        \\ 
     ).inStream();
 
     const map = try AsteroidMap.fromStream(input_stream, allocator);
@@ -323,11 +321,11 @@ test "max visible asteroids 1" {
 
     var input_stream = fixedBufferStream(
         \\.#..#
-            \\.....
-            \\#####
-            \\....#
-            \\...##
-            \\ 
+        \\.....
+        \\#####
+        \\....#
+        \\...##
+        \\ 
     ).inStream();
 
     const map = try AsteroidMap.fromStream(input_stream, allocator);
@@ -342,16 +340,16 @@ test "max visible asteroids 2" {
 
     var input_stream = fixedBufferStream(
         \\......#.#.
-            \\#..#.#....
-            \\..#######.
-            \\.#.#.###..
-            \\.#..#.....
-            \\..#....#.#
-            \\#..#....#.
-            \\.##.#..###
-            \\##...#..#.
-            \\.#....####
-            \\ 
+        \\#..#.#....
+        \\..#######.
+        \\.#.#.###..
+        \\.#..#.....
+        \\..#....#.#
+        \\#..#....#.
+        \\.##.#..###
+        \\##...#..#.
+        \\.#....####
+        \\ 
     ).inStream();
 
     const map = try AsteroidMap.fromStream(input_stream, allocator);
@@ -365,16 +363,16 @@ test "max visible asteroids 3" {
 
     var input_stream = fixedBufferStream(
         \\#.#...#.#.
-            \\.###....#.
-            \\.#....#...
-            \\##.#.#.#.#
-            \\....#.#.#.
-            \\.##..###.#
-            \\..#...##..
-            \\..##....##
-            \\......#...
-            \\.####.###.
-            \\ 
+        \\.###....#.
+        \\.#....#...
+        \\##.#.#.#.#
+        \\....#.#.#.
+        \\.##..###.#
+        \\..#...##..
+        \\..##....##
+        \\......#...
+        \\.####.###.
+        \\ 
     ).inStream();
 
     const map = try AsteroidMap.fromStream(input_stream, allocator);
@@ -388,16 +386,16 @@ test "max visible asteroids 4" {
 
     var input_stream = fixedBufferStream(
         \\.#..#..###
-            \\####.###.#
-            \\....###.#.
-            \\..###.##.#
-            \\##.##.#.#.
-            \\....###..#
-            \\..#.#..#.#
-            \\#..#.#.###
-            \\.##...##.#
-            \\.....#.#..
-            \\ 
+        \\####.###.#
+        \\....###.#.
+        \\..###.##.#
+        \\##.##.#.#.
+        \\....###..#
+        \\..#.#..#.#
+        \\#..#.#.###
+        \\.##...##.#
+        \\.....#.#..
+        \\ 
     ).inStream();
 
     const map = try AsteroidMap.fromStream(input_stream, allocator);
@@ -411,26 +409,26 @@ test "max visible asteroids 5" {
 
     var input_stream = fixedBufferStream(
         \\.#..##.###...#######
-            \\##.############..##.
-            \\.#.######.########.#
-            \\.###.#######.####.#.
-            \\#####.##.#.##.###.##
-            \\..#####..#.#########
-            \\####################
-            \\#.####....###.#.#.##
-            \\##.#################
-            \\#####.##.###..####..
-            \\..######..##.#######
-            \\####.##.####...##..#
-            \\.#####..#.######.###
-            \\##...#.##########...
-            \\#.##########.#######
-            \\.####.#.###.###.#.##
-            \\....##.##.###..#####
-            \\.#.#.###########.###
-            \\#.#.#.#####.####.###
-            \\###.##.####.##.#..##
-            \\
+        \\##.############..##.
+        \\.#.######.########.#
+        \\.###.#######.####.#.
+        \\#####.##.#.##.###.##
+        \\..#####..#.#########
+        \\####################
+        \\#.####....###.#.#.##
+        \\##.#################
+        \\#####.##.###..####..
+        \\..######..##.#######
+        \\####.##.####...##..#
+        \\.#####..#.######.###
+        \\##...#.##########...
+        \\#.##########.#######
+        \\.####.#.###.###.#.##
+        \\....##.##.###..#####
+        \\.#.#.###########.###
+        \\#.#.#.#####.####.###
+        \\###.##.####.##.#..##
+        \\
     ).inStream();
 
     const map = try AsteroidMap.fromStream(input_stream, allocator);
@@ -444,26 +442,26 @@ test "vaporize" {
 
     var input_stream = fixedBufferStream(
         \\.#..##.###...#######
-            \\##.############..##.
-            \\.#.######.########.#
-            \\.###.#######.####.#.
-            \\#####.##.#.##.###.##
-            \\..#####..#.#########
-            \\####################
-            \\#.####....###.#.#.##
-            \\##.#################
-            \\#####.##.###..####..
-            \\..######..##.#######
-            \\####.##.####...##..#
-            \\.#####..#.######.###
-            \\##...#.##########...
-            \\#.##########.#######
-            \\.####.#.###.###.#.##
-            \\....##.##.###..#####
-            \\.#.#.###########.###
-            \\#.#.#.#####.####.###
-            \\###.##.####.##.#..##
-            \\
+        \\##.############..##.
+        \\.#.######.########.#
+        \\.###.#######.####.#.
+        \\#####.##.#.##.###.##
+        \\..#####..#.#########
+        \\####################
+        \\#.####....###.#.#.##
+        \\##.#################
+        \\#####.##.###..####..
+        \\..######..##.#######
+        \\####.##.####...##..#
+        \\.#####..#.######.###
+        \\##...#.##########...
+        \\#.##########.#######
+        \\.####.#.###.###.#.##
+        \\....##.##.###..#####
+        \\.#.#.###########.###
+        \\#.#.#.#####.####.###
+        \\###.##.####.##.#..##
+        \\
     ).inStream();
 
     const map = try AsteroidMap.fromStream(input_stream, allocator);
@@ -492,10 +490,10 @@ pub fn main() !void {
 
     const map = try AsteroidMap.fromStream(input_stream, allocator);
     const station_location = map.stationLocation() orelse return error.NoStationLocation;
-    std.debug.warn("max detectable asteroids: {}\n", .{ map.countDetectableAsteroids(station_location) });
-    std.debug.warn("station location: {}\n", .{ station_location });
+    std.debug.warn("max detectable asteroids: {}\n", .{map.countDetectableAsteroids(station_location)});
+    std.debug.warn("station location: {}\n", .{station_location});
 
     const vaporization_order = try map.initiateVaporization(allocator, station_location);
-    std.debug.warn("200th asteroid: {}\n", .{ vaporization_order[199] });
-    std.debug.warn("soltion: {}\n", .{ vaporization_order[199].x * 100 + vaporization_order[199].y });
+    std.debug.warn("200th asteroid: {}\n", .{vaporization_order[199]});
+    std.debug.warn("soltion: {}\n", .{vaporization_order[199].x * 100 + vaporization_order[199].y});
 }

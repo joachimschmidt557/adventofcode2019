@@ -6,9 +6,7 @@ const Buffer = std.Buffer;
 const fixedBufferStream = std.io.fixedBufferStream;
 const assert = std.debug.assert;
 
-const OrbitMapParseError = error{
-    FormatError,
-};
+const OrbitMapParseError = error{FormatError};
 
 const OrbitMap = struct {
     alloc: *Allocator,
@@ -31,7 +29,7 @@ const OrbitMap = struct {
         };
 
         while (stream.readUntilDelimiterAlloc(allocator, '\n', 1024)) |line| {
-            var iter = std.mem.separate(line, ")");
+            var iter = std.mem.split(line, ")");
             const orbitee = iter.next() orelse return error.FormatError;
             const orbiter = iter.next() orelse return error.FormatError;
 
@@ -104,5 +102,5 @@ pub fn main() !void {
 
     var orbit_map = try OrbitMap.fromStream(allocator, input_stream);
 
-    std.debug.warn("total orbits: {}\n", .{ orbit_map.count("COM", 0) });
+    std.debug.warn("total orbits: {}\n", .{orbit_map.count("COM", 0)});
 }

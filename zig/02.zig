@@ -1,7 +1,7 @@
 const std = @import("std");
 const assert = std.debug.assert;
 
-const ExecError = error{ InvalidOpcode };
+const ExecError = error{InvalidOpcode};
 
 fn exec(intcode: []i32) !void {
     var pos: usize = 0;
@@ -46,7 +46,6 @@ test "test exec 3" {
     assert(intcode[5] == 9801);
 }
 
-
 pub fn main() !void {
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     const allocator = &arena.allocator;
@@ -62,11 +61,11 @@ pub fn main() !void {
         try ints.append(try std.fmt.parseInt(i32, item, 10));
     }
 
-    ints.set(1, 12);
-    ints.set(2, 2);
+    ints.items[1] = 12;
+    ints.items[2] = 2;
 
     try exec(ints.items);
 
     // output entry at position 0
-    std.debug.warn("value at position 0: {}\n", .{ints.at(0)});
+    std.debug.warn("value at position 0: {}\n", .{ints.items[0]});
 }

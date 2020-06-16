@@ -49,22 +49,22 @@ pub const Mem = struct {
     }
 
     pub fn get(self: Self, pos: usize) Instr {
-        return if (pos < self.backend.items.len) self.backend.at(pos) else 0;
+        return if (pos < self.backend.items.len) self.backend.items[pos] else 0;
     }
 
     pub fn set(self: *Self, pos: usize, val: Instr) !void {
         if (pos < self.backend.items.len) {
-            self.backend.set(pos, val);
+            self.backend.items[pos] = val;
         } else {
             const old_len = self.backend.items.len;
             try self.backend.resize(pos + 1);
 
             var i: usize = old_len;
             while (i < self.backend.items.len) : (i += 1) {
-                self.backend.set(i, 0);
+                self.backend.items[i] = 0;
             }
 
-            self.backend.set(pos, val);
+            self.backend.items[pos] = val;
         }
     }
 };
@@ -244,7 +244,7 @@ test "test exec with negative integers" {
 }
 
 test "test equal 1" {
-    var intcode = [_]Instr{ 3,9,8,9,10,9,4,9,99,-1,8 };
+    var intcode = [_]Instr{ 3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8 };
     var comp = IntcodeComputer.init(&intcode, std.testing.failing_allocator);
     comp.input = 8;
     try comp.execUntilHalt();
@@ -252,7 +252,7 @@ test "test equal 1" {
 }
 
 test "test equal 2" {
-    var intcode = [_]Instr{ 3,9,8,9,10,9,4,9,99,-1,8 };
+    var intcode = [_]Instr{ 3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8 };
     var comp = IntcodeComputer.init(&intcode, std.testing.failing_allocator);
     comp.input = 13;
     try comp.execUntilHalt();
@@ -260,7 +260,7 @@ test "test equal 2" {
 }
 
 test "test less than 1" {
-    var intcode = [_]Instr{ 3,9,7,9,10,9,4,9,99,-1,8 };
+    var intcode = [_]Instr{ 3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8 };
     var comp = IntcodeComputer.init(&intcode, std.testing.failing_allocator);
     comp.input = 5;
     try comp.execUntilHalt();
@@ -268,7 +268,7 @@ test "test less than 1" {
 }
 
 test "test less than 2" {
-    var intcode = [_]Instr{ 3,9,7,9,10,9,4,9,99,-1,8 };
+    var intcode = [_]Instr{ 3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8 };
     var comp = IntcodeComputer.init(&intcode, std.testing.failing_allocator);
     comp.input = 20;
     try comp.execUntilHalt();
@@ -276,7 +276,7 @@ test "test less than 2" {
 }
 
 test "test equal immediate" {
-    var intcode = [_]Instr{ 3,3,1108,-1,8,3,4,3,99 };
+    var intcode = [_]Instr{ 3, 3, 1108, -1, 8, 3, 4, 3, 99 };
     var comp = IntcodeComputer.init(&intcode, std.testing.failing_allocator);
     comp.input = 8;
     try comp.execUntilHalt();
@@ -284,7 +284,7 @@ test "test equal immediate" {
 }
 
 test "test less than immediate" {
-    var intcode = [_]Instr{ 3,3,1107,-1,8,3,4,3,99 };
+    var intcode = [_]Instr{ 3, 3, 1107, -1, 8, 3, 4, 3, 99 };
     var comp = IntcodeComputer.init(&intcode, std.testing.failing_allocator);
     comp.input = 3;
     try comp.execUntilHalt();
@@ -296,19 +296,19 @@ test "quine" {
     const allocator = &arena.allocator;
     defer arena.deinit();
 
-    var intcode = [_]Instr{ 109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99 };
+    var intcode = [_]Instr{ 109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99 };
     var comp = IntcodeComputer.init(&intcode, allocator);
     try comp.execUntilHalt();
 }
 
 test "big number" {
-    var intcode = [_]Instr{ 1102,34915192,34915192,7,4,7,99,0 };
+    var intcode = [_]Instr{ 1102, 34915192, 34915192, 7, 4, 7, 99, 0 };
     var comp = IntcodeComputer.init(&intcode, std.testing.failing_allocator);
     try comp.execUntilHalt();
 }
 
 test "big number 2" {
-    var intcode = [_]Instr{ 104,1125899906842624,99 };
+    var intcode = [_]Instr{ 104, 1125899906842624, 99 };
     var comp = IntcodeComputer.init(&intcode, std.testing.failing_allocator);
     try comp.execUntilHalt();
 
@@ -424,8 +424,7 @@ pub const Panel = struct {
         while (i >= end.y) : (i -= 1) {
             var j: isize = start.x;
             while (j <= end.x) : (j += 1) {
-                std.debug.warn("{}", .{ self.getColor(Pos.p(start.x + j,
-                                                            start.y + i)).toStr() });
+                std.debug.warn("{}", .{self.getColor(Pos.p(start.x + j, start.y + i)).toStr()});
             }
             std.debug.warn("\n", .{});
         }
@@ -459,7 +458,6 @@ pub const Pos = struct {
         };
     }
 };
-
 
 pub const Direction = enum {
     North,

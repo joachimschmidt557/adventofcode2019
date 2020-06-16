@@ -48,7 +48,7 @@ const Instruction = struct {
                 'L' => .Left,
                 'R' => .Right,
                 else => {
-                    std.debug.warn("{}\n", .{ s });
+                    std.debug.warn("{}\n", .{s});
                     return error.InvalidDirection;
                 },
             },
@@ -105,9 +105,7 @@ const Line = struct {
             }
         } else if (dir_a == TwoDir.Horizontal and dir_b == TwoDir.Horizontal) {
             // Flip x and y
-            try result.appendSlice(try Self.intersect(alloc,
-                Self{ .start = a.start.flip(), .end = a.end.flip() },
-                Self{ .start = b.start.flip(), .end = b.end.flip() }));
+            try result.appendSlice(try Self.intersect(alloc, Self{ .start = a.start.flip(), .end = a.end.flip() }, Self{ .start = b.start.flip(), .end = b.end.flip() }));
         }
         // Crossed
         else if (dir_a == TwoDir.Vertical and dir_b == TwoDir.Horizontal) {
@@ -133,14 +131,14 @@ const Line = struct {
         // Remove (0,0) as valid intersections
         var i: usize = 0;
         while (i < result.items.len) {
-            if (result.at(i).x == 0 and result.at(i).y == 0) {
+            if (result.items[i].x == 0 and result.items[i].y == 0) {
                 _ = result.orderedRemove(i);
             } else {
                 i += 1;
             }
         }
 
-        return result.toOwnedSlice();
+        return result.items;
     }
 
     pub fn len(self: Line) !i32 {
@@ -276,7 +274,7 @@ pub fn main() !void {
         var instructions = ArrayList(Instruction).init(allocator);
         defer instructions.deinit();
 
-        var iter = std.mem.separate(line, ",");
+        var iter = std.mem.split(line, ",");
         while (iter.next()) |itm| {
             try instructions.append(try Instruction.fromStr(itm));
         }
@@ -287,12 +285,12 @@ pub fn main() !void {
         else => return err,
     }
 
-    const path_1 = paths.at(0);
-    const path_2 = paths.at(1);
+    const path_1 = paths.items[0];
+    const path_2 = paths.items[1];
 
     const ints = try Path.intersections(allocator, path_1, path_2);
 
-    std.debug.warn("Number of intersections: {}\n", .{ ints.len });
+    std.debug.warn("Number of intersections: {}\n", .{ints.len});
 
     // Find closest intersection
     var min_dist: ?i32 = null;
@@ -307,5 +305,5 @@ pub fn main() !void {
         }
     }
 
-    std.debug.warn("Minimum distance: {}\n", .{ min_dist });
+    std.debug.warn("Minimum distance: {}\n", .{min_dist});
 }
