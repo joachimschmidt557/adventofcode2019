@@ -102,7 +102,7 @@ pub fn main() !void {
     const allocator = &arena.allocator;
 
     const input_file = try std.fs.cwd().openFile("input16.txt", .{});
-    var input_stream = input_file.inStream();
+    var input_stream = input_file.reader();
     var read = ArrayList(isize).init(allocator);
 
     while (input_stream.readByte()) |b| {

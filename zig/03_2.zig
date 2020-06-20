@@ -269,7 +269,7 @@ pub fn main() !void {
     var paths = ArrayList(Path).init(allocator);
 
     const input_file = try std.fs.cwd().openFile("input03.txt", .{});
-    var input_stream = input_file.inStream();
+    var input_stream = input_file.reader();
     while (input_stream.readUntilDelimiterAlloc(allocator, '\n', 1024)) |line| {
         var instructions = ArrayList(Instruction).init(allocator);
         defer instructions.deinit();

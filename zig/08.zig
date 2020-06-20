@@ -42,8 +42,8 @@ test "read layer" {
     const allocator = &arena.allocator;
     defer arena.deinit();
 
-    var in_stream = fixedBufferStream("001123").inStream();
-    const lay = try Layer.fromStream(allocator, in_stream, 3, 2);
+    var reader = fixedBufferStream("001123").reader();
+    const lay = try Layer.fromStream(allocator, reader, 3, 2);
 
     expect(lay.countDigit(1) == 2);
     expect(lay.countDigit(0) == 2);
@@ -76,8 +76,8 @@ test "read image" {
     const allocator = &arena.allocator;
     defer arena.deinit();
 
-    var in_stream = fixedBufferStream("123456789012").inStream();
-    const img = try Image.fromStream(allocator, in_stream, 3, 2);
+    var reader = fixedBufferStream("123456789012").reader();
+    const img = try Image.fromStream(allocator, reader, 3, 2);
 
     expect(img.layers.len == 2);
 }
@@ -88,7 +88,7 @@ pub fn main() !void {
     defer arena.deinit();
 
     const input_file = try std.fs.cwd().openFile("input08.txt", .{});
-    var input_stream = input_file.inStream();
+    var input_stream = input_file.reader();
 
     // read image
     const img = try Image.fromStream(allocator, input_stream, 25, 6);

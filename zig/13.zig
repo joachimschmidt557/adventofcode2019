@@ -423,7 +423,7 @@ pub fn main() !void {
     defer arena.deinit();
 
     const input_file = try std.fs.cwd().openFile("input13.txt", .{});
-    var input_stream = input_file.inStream();
+    var input_stream = input_file.reader();
     var buf: [1024]u8 = undefined;
     var ints = std.ArrayList(Instr).init(allocator);
 

@@ -101,7 +101,7 @@ test "count orbits" {
         \\I)SAN
         \\ 
     );
-    const stream = mem_stream.inStream();
+    const stream = mem_stream.reader();
     var orbit_map = try OrbitMap.fromStream(allocator, stream);
 
     assert((try orbit_map.distance("YOU", "SAN")) == 4);
@@ -113,7 +113,7 @@ pub fn main() !void {
     defer arena.deinit();
 
     const input_file = try std.fs.cwd().openFile("input06.txt", .{});
-    var input_stream = input_file.inStream();
+    var input_stream = input_file.reader();
 
     var orbit_map = try OrbitMap.fromStream(allocator, input_stream);
 

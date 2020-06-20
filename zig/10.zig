@@ -168,7 +168,7 @@ test "read asteroid map" {
             \\#.#
             \\...
             \\ 
-    ).inStream();
+    ).reader();
 
     const map = try AsteroidMap.fromStream(input_stream, allocator);
     expectEqual(@intCast(usize, 3), map.asteroids.len);
@@ -189,7 +189,7 @@ test "count visible asteroids" {
             \\....#
             \\...##
             \\ 
-    ).inStream();
+    ).reader();
 
     const map = try AsteroidMap.fromStream(input_stream, allocator);
     expectEqual(@intCast(usize, 10), map.asteroids.len);
@@ -217,7 +217,7 @@ test "max visible asteroids 1" {
             \\....#
             \\...##
             \\ 
-    ).inStream();
+    ).reader();
 
     const map = try AsteroidMap.fromStream(input_stream, allocator);
     expectEqual(@intCast(usize, 10), map.asteroids.len);
@@ -241,7 +241,7 @@ test "max visible asteroids 2" {
             \\##...#..#.
             \\.#....####
             \\ 
-    ).inStream();
+    ).reader();
 
     const map = try AsteroidMap.fromStream(input_stream, allocator);
     expectEqual(@intCast(usize, 33), map.maxDetectableAsteroids().?);
@@ -264,7 +264,7 @@ test "max visible asteroids 3" {
             \\......#...
             \\.####.###.
             \\ 
-    ).inStream();
+    ).reader();
 
     const map = try AsteroidMap.fromStream(input_stream, allocator);
     expectEqual(@intCast(usize, 35), map.maxDetectableAsteroids().?);
@@ -287,7 +287,7 @@ test "max visible asteroids 4" {
             \\.##...##.#
             \\.....#.#..
             \\ 
-    ).inStream();
+    ).reader();
 
     const map = try AsteroidMap.fromStream(input_stream, allocator);
     expectEqual(@intCast(usize, 41), map.maxDetectableAsteroids().?);
@@ -320,7 +320,7 @@ test "max visible asteroids 5" {
             \\#.#.#.#####.####.###
             \\###.##.####.##.#..##
             \\ 
-    ).inStream();
+    ).reader();
 
     const map = try AsteroidMap.fromStream(input_stream, allocator);
     expectEqual(@intCast(usize, 210), map.maxDetectableAsteroids().?);
@@ -332,7 +332,7 @@ pub fn main() !void {
     defer arena.deinit();
 
     const input_file = try std.fs.cwd().openFile("input10.txt", .{});
-    var input_stream = input_file.inStream();
+    var input_stream = input_file.reader();
 
     const map = try AsteroidMap.fromStream(input_stream, allocator);
     const max = map.maxDetectableAsteroids().?;

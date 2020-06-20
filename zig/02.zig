@@ -52,12 +52,12 @@ pub fn main() !void {
     defer arena.deinit();
 
     const stdin = std.io.getStdIn();
-    var stdin_stream = stdin.inStream();
+    var stdreader = stdin.reader();
     var buf: [1024]u8 = undefined;
     var ints = std.ArrayList(i32).init(allocator);
 
     // read everything into an int arraylist
-    while (try stdin_stream.readUntilDelimiterOrEof(&buf, ',')) |item| {
+    while (try stdreader.readUntilDelimiterOrEof(&buf, ',')) |item| {
         try ints.append(try std.fmt.parseInt(i32, item, 10));
     }
 

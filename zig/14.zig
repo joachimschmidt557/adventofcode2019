@@ -202,7 +202,7 @@ test "parse example reactions" {
             \\4 C, 1 A => 1 CA
             \\2 AB, 3 BC, 4 CA => 1 FUEL
             \\ 
-    ).inStream();
+    ).reader();
 
     const reactions = try reactionsFromStream(allocator, stream);
     defer allocator.free(reactions);
@@ -282,7 +282,7 @@ test "requirements for example reactions" {
             \\4 C, 1 A => 1 CA
             \\2 AB, 3 BC, 4 CA => 1 FUEL
             \\ 
-    ).inStream();
+    ).reader();
 
     const reactions = try reactionsFromStream(allocator, stream);
     defer allocator.free(reactions);
@@ -304,7 +304,7 @@ test "requirements for example 1" {
             \\165 ORE => 2 GPVTF
             \\3 DCFZ, 7 NZVS, 5 HKGWZ, 10 PSHF => 8 KHKGT
             \\ 
-    ).inStream();
+    ).reader();
 
     const reactions = try reactionsFromStream(allocator, stream);
     defer allocator.free(reactions);
@@ -329,7 +329,7 @@ test "requirements for example 2" {
             \\1 VJHF, 6 MNCFX => 4 RFSQX
             \\176 ORE => 6 VJHF
             \\ 
-    ).inStream();
+    ).reader();
 
     const reactions = try reactionsFromStream(allocator, stream);
     defer allocator.free(reactions);
@@ -348,7 +348,7 @@ pub fn main() !void {
     defer arena.deinit();
 
     const input_file = try std.fs.cwd().openFile("input14.txt", .{});
-    var input_stream = input_file.inStream();
+    var input_stream = input_file.reader();
 
     const reactions = try reactionsFromStream(allocator, input_stream);
     defer allocator.free(reactions);

@@ -86,8 +86,8 @@ test "count orbits" {
         \\K)L
         \\ 
     );
-    var in_stream = mem_stream.inStream();
-    var orbit_map = try OrbitMap.fromStream(allocator, in_stream);
+    var reader = mem_stream.reader();
+    var orbit_map = try OrbitMap.fromStream(allocator, reader);
 
     assert(orbit_map.count("COM", 0) == 42);
 }
@@ -98,7 +98,7 @@ pub fn main() !void {
     defer arena.deinit();
 
     const input_file = try std.fs.cwd().openFile("input06.txt", .{});
-    var input_stream = input_file.inStream();
+    var input_stream = input_file.reader();
 
     var orbit_map = try OrbitMap.fromStream(allocator, input_stream);
 

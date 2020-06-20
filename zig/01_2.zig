@@ -28,10 +28,10 @@ pub fn main() !void {
     defer arena.deinit();
 
     const stdin = std.io.getStdIn();
-    var stdin_stream = stdin.inStream();
+    var stdreader = stdin.reader();
     var modules = std.ArrayList(Module).init(allocator);
 
-    while (stdin_stream.readUntilDelimiterAlloc(allocator, '\n', 1024)) |line| {
+    while (stdreader.readUntilDelimiterAlloc(allocator, '\n', 1024)) |line| {
         defer allocator.free(line);
         try modules.append(Module{ .mass = try std.fmt.parseInt(u32, line, 10) });
     } else |err| switch (err) {
