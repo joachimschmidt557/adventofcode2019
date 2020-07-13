@@ -38,7 +38,7 @@ fn getParam(intcode: []i32, pos: usize, n: usize, mode: i32) !i32 {
     };
 }
 
-fn exec(intcode: []i32, input_stream: var, output_stream: var) !void {
+fn exec(intcode: []i32, input_stream: anytype, output_stream: anytype) !void {
     var pos: usize = 0;
 
     while (true) {
@@ -69,7 +69,7 @@ fn exec(intcode: []i32, input_stream: var, output_stream: var) !void {
             },
             4 => {
                 const val_x = try getParam(intcode, pos, 0, paramMode(instr, 0));
-                try output_stream.print("{}\n", .{ val_x });
+                try output_stream.print("{}\n", .{val_x});
                 pos += 2;
             },
             5 => {
@@ -105,7 +105,7 @@ fn exec(intcode: []i32, input_stream: var, output_stream: var) !void {
                 pos += 4;
             },
             else => {
-                std.debug.warn("pos: {}, instr: {}\n", .{ pos, intcode[pos]});
+                std.debug.warn("pos: {}, instr: {}\n", .{ pos, intcode[pos] });
                 return error.InvalidOpcode;
             },
         }
@@ -148,7 +148,7 @@ test "test exec with negative integers" {
 }
 
 test "test equal 1" {
-    var intcode = [_]i32{ 3,9,8,9,10,9,4,9,99,-1,8 };
+    var intcode = [_]i32{ 3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8 };
     var output_buf: [32]u8 = undefined;
     var reader = fixedBufferStream("8\n").reader();
     var writer = fixedBufferStream(&output_buf).writer();
@@ -157,7 +157,7 @@ test "test equal 1" {
 }
 
 test "test equal 2" {
-    var intcode = [_]i32{ 3,9,8,9,10,9,4,9,99,-1,8 };
+    var intcode = [_]i32{ 3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8 };
     var output_buf: [32]u8 = undefined;
     var reader = fixedBufferStream("13\n").reader();
     var writer = fixedBufferStream(&output_buf).writer();
@@ -166,7 +166,7 @@ test "test equal 2" {
 }
 
 test "test less than 1" {
-    var intcode = [_]i32{ 3,9,7,9,10,9,4,9,99,-1,8 };
+    var intcode = [_]i32{ 3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8 };
     var output_buf: [32]u8 = undefined;
     var reader = fixedBufferStream("5\n").reader();
     var writer = fixedBufferStream(&output_buf).writer();
@@ -175,7 +175,7 @@ test "test less than 1" {
 }
 
 test "test less than 2" {
-    var intcode = [_]i32{ 3,9,7,9,10,9,4,9,99,-1,8 };
+    var intcode = [_]i32{ 3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8 };
     var output_buf: [32]u8 = undefined;
     var reader = fixedBufferStream("20\n").reader();
     var writer = fixedBufferStream(&output_buf).writer();
@@ -184,7 +184,7 @@ test "test less than 2" {
 }
 
 test "test equal immediate" {
-    var intcode = [_]i32{ 3,3,1108,-1,8,3,4,3,99 };
+    var intcode = [_]i32{ 3, 3, 1108, -1, 8, 3, 4, 3, 99 };
     var output_buf: [32]u8 = undefined;
     var reader = fixedBufferStream("8\n").reader();
     var writer = fixedBufferStream(&output_buf).writer();
@@ -193,7 +193,7 @@ test "test equal immediate" {
 }
 
 test "test less than immediate" {
-    var intcode = [_]i32{ 3,3,1107,-1,8,3,4,3,99 };
+    var intcode = [_]i32{ 3, 3, 1107, -1, 8, 3, 4, 3, 99 };
     var output_buf: [32]u8 = undefined;
     var reader = fixedBufferStream("3\n").reader();
     var writer = fixedBufferStream(&output_buf).writer();

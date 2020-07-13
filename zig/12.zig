@@ -42,8 +42,11 @@ pub const Vec3Parser = struct {
 
     const Self = @This();
 
-    pub fn init(buf: []const u8) Self{
-        return Self{ .buf = buf, .pos = 0, };
+    pub fn init(buf: []const u8) Self {
+        return Self{
+            .buf = buf,
+            .pos = 0,
+        };
     }
 
     pub fn parse(self: *Self) !Vec3 {

@@ -38,7 +38,7 @@ fn getParam(intcode: []i32, pos: usize, n: usize, mode: i32) !i32 {
     };
 }
 
-fn exec(intcode: []i32, input_stream: var, output_stream: var) !void {
+fn exec(intcode: []i32, input_stream: anytype, output_stream: anytype) !void {
     var pos: usize = 0;
 
     while (true) {
@@ -69,11 +69,11 @@ fn exec(intcode: []i32, input_stream: var, output_stream: var) !void {
             },
             4 => {
                 const val_x = try getParam(intcode, pos, 0, paramMode(instr, 0));
-                try output_stream.print("{}\n", .{ val_x });
+                try output_stream.print("{}\n", .{val_x});
                 pos += 2;
             },
             else => {
-                std.debug.warn("pos: {}, instr: {}\n", .{ pos, intcode[pos]});
+                std.debug.warn("pos: {}, instr: {}\n", .{ pos, intcode[pos] });
                 return error.InvalidOpcode;
             },
         }

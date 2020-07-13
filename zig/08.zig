@@ -12,7 +12,7 @@ const Layer = struct {
 
     const Self = @This();
 
-    pub fn fromStream(alloc: *Allocator, stream: var, w: usize, h: usize) !Self {
+    pub fn fromStream(alloc: *Allocator, stream: anytype, w: usize, h: usize) !Self {
         var pixels = try alloc.alloc(Pixel, w * h);
         for (pixels) |*p| {
             var buf: [1]u8 = undefined;
@@ -54,7 +54,7 @@ const Image = struct {
 
     const Self = @This();
 
-    pub fn fromStream(alloc: *Allocator, stream: var, w: usize, h: usize) !Self {
+    pub fn fromStream(alloc: *Allocator, stream: anytype, w: usize, h: usize) !Self {
         var layers = ArrayList(Layer).init(alloc);
 
         while (Layer.fromStream(alloc, stream, w, h)) |l| {
@@ -107,5 +107,5 @@ pub fn main() !void {
 
     // calculate result
     const result = res.?.countDigit(1) * res.?.countDigit(2);
-    std.debug.warn("result: {}\n", .{ result });
+    std.debug.warn("result: {}\n", .{result});
 }

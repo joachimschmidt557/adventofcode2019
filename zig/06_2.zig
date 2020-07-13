@@ -22,7 +22,7 @@ const OrbitMap = struct {
         };
     }
 
-    pub fn fromStream(allocator: *Allocator, stream: var) !Self {
+    pub fn fromStream(allocator: *Allocator, stream: anytype) !Self {
         var map = BufMap.init(allocator);
         var result = Self{
             .alloc = allocator,

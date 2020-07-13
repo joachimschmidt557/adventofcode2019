@@ -126,5 +126,5 @@ pub fn main() !void {
     for (eight_digits) |*x, j| {
         x.* = @intCast(u8, current[j] + '0');
     }
-    std.debug.warn("first eight digits: {}\n", .{ &eight_digits });
+    std.debug.warn("first eight digits: {}\n", .{&eight_digits});
 }

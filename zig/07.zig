@@ -42,7 +42,7 @@ fn getParam(intcode: []i32, pos: usize, n: usize, mode: i32) !i32 {
     };
 }
 
-fn exec(intcode: []i32, input_stream: var, output_stream: var) !void {
+fn exec(intcode: []i32, input_stream: anytype, output_stream: anytype) !void {
     var pos: usize = 0;
 
     while (true) {

@@ -67,8 +67,7 @@ pub fn obstructs(origin: Pos, dest: Pos, obstr: Pos) bool {
         return origin_obstr_y == 0;
     } else {
         const epsilon = 0.000001;
-        return approxEq(f64, divToFloat(origin_obstr_x, origin_dest_x),
-                        divToFloat(origin_obstr_y, origin_dest_y), epsilon);
+        return approxEq(f64, divToFloat(origin_obstr_x, origin_dest_x), divToFloat(origin_obstr_y, origin_dest_y), epsilon);
     }
 }
 
@@ -90,7 +89,7 @@ pub const AsteroidMap = struct {
 
     const Self = @This();
 
-    pub fn fromStream(stream: var, allocator: *Allocator) !Self {
+    pub fn fromStream(stream: anytype, allocator: *Allocator) !Self {
         var asteroids = ArrayList(Pos).init(allocator);
 
         var y: usize = 0;
@@ -103,7 +102,7 @@ pub const AsteroidMap = struct {
                     }),
                     '.' => {},
                     else => {
-                        std.debug.warn("invalid char: {}\n", .{ c });
+                        std.debug.warn("invalid char: {}\n", .{c});
                         return error.InvalidMapCharacter;
                     },
                 }
@@ -165,9 +164,9 @@ test "read asteroid map" {
 
     var input_stream = fixedBufferStream(
         \\..#
-            \\#.#
-            \\...
-            \\ 
+        \\#.#
+        \\...
+        \\ 
     ).reader();
 
     const map = try AsteroidMap.fromStream(input_stream, allocator);
@@ -184,11 +183,11 @@ test "count visible asteroids" {
 
     var input_stream = fixedBufferStream(
         \\.#..#
-            \\.....
-            \\#####
-            \\....#
-            \\...##
-            \\ 
+        \\.....
+        \\#####
+        \\....#
+        \\...##
+        \\ 
     ).reader();
 
     const map = try AsteroidMap.fromStream(input_stream, allocator);
@@ -212,11 +211,11 @@ test "max visible asteroids 1" {
 
     var input_stream = fixedBufferStream(
         \\.#..#
-            \\.....
-            \\#####
-            \\....#
-            \\...##
-            \\ 
+        \\.....
+        \\#####
+        \\....#
+        \\...##
+        \\ 
     ).reader();
 
     const map = try AsteroidMap.fromStream(input_stream, allocator);
@@ -231,16 +230,16 @@ test "max visible asteroids 2" {
 
     var input_stream = fixedBufferStream(
         \\......#.#.
-            \\#..#.#....
-            \\..#######.
-            \\.#.#.###..
-            \\.#..#.....
-            \\..#....#.#
-            \\#..#....#.
-            \\.##.#..###
-            \\##...#..#.
-            \\.#....####
-            \\ 
+        \\#..#.#....
+        \\..#######.
+        \\.#.#.###..
+        \\.#..#.....
+        \\..#....#.#
+        \\#..#....#.
+        \\.##.#..###
+        \\##...#..#.
+        \\.#....####
+        \\ 
     ).reader();
 
     const map = try AsteroidMap.fromStream(input_stream, allocator);
@@ -254,16 +253,16 @@ test "max visible asteroids 3" {
 
     var input_stream = fixedBufferStream(
         \\#.#...#.#.
-            \\.###....#.
-            \\.#....#...
-            \\##.#.#.#.#
-            \\....#.#.#.
-            \\.##..###.#
-            \\..#...##..
-            \\..##....##
-            \\......#...
-            \\.####.###.
-            \\ 
+        \\.###....#.
+        \\.#....#...
+        \\##.#.#.#.#
+        \\....#.#.#.
+        \\.##..###.#
+        \\..#...##..
+        \\..##....##
+        \\......#...
+        \\.####.###.
+        \\ 
     ).reader();
 
     const map = try AsteroidMap.fromStream(input_stream, allocator);
@@ -277,16 +276,16 @@ test "max visible asteroids 4" {
 
     var input_stream = fixedBufferStream(
         \\.#..#..###
-            \\####.###.#
-            \\....###.#.
-            \\..###.##.#
-            \\##.##.#.#.
-            \\....###..#
-            \\..#.#..#.#
-            \\#..#.#.###
-            \\.##...##.#
-            \\.....#.#..
-            \\ 
+        \\####.###.#
+        \\....###.#.
+        \\..###.##.#
+        \\##.##.#.#.
+        \\....###..#
+        \\..#.#..#.#
+        \\#..#.#.###
+        \\.##...##.#
+        \\.....#.#..
+        \\ 
     ).reader();
 
     const map = try AsteroidMap.fromStream(input_stream, allocator);
@@ -300,26 +299,26 @@ test "max visible asteroids 5" {
 
     var input_stream = fixedBufferStream(
         \\.#..##.###...#######
-            \\##.############..##.
-            \\.#.######.########.#
-            \\.###.#######.####.#.
-            \\#####.##.#.##.###.##
-            \\..#####..#.#########
-            \\####################
-            \\#.####....###.#.#.##
-            \\##.#################
-            \\#####.##.###..####..
-            \\..######..##.#######
-            \\####.##.####...##..#
-            \\.#####..#.######.###
-            \\##...#.##########...
-            \\#.##########.#######
-            \\.####.#.###.###.#.##
-            \\....##.##.###..#####
-            \\.#.#.###########.###
-            \\#.#.#.#####.####.###
-            \\###.##.####.##.#..##
-            \\ 
+        \\##.############..##.
+        \\.#.######.########.#
+        \\.###.#######.####.#.
+        \\#####.##.#.##.###.##
+        \\..#####..#.#########
+        \\####################
+        \\#.####....###.#.#.##
+        \\##.#################
+        \\#####.##.###..####..
+        \\..######..##.#######
+        \\####.##.####...##..#
+        \\.#####..#.######.###
+        \\##...#.##########...
+        \\#.##########.#######
+        \\.####.#.###.###.#.##
+        \\....##.##.###..#####
+        \\.#.#.###########.###
+        \\#.#.#.#####.####.###
+        \\###.##.####.##.#..##
+        \\ 
     ).reader();
 
     const map = try AsteroidMap.fromStream(input_stream, allocator);
@@ -336,5 +335,5 @@ pub fn main() !void {
 
     const map = try AsteroidMap.fromStream(input_stream, allocator);
     const max = map.maxDetectableAsteroids().?;
-    std.debug.warn("max detectable asteroids: {}\n", .{ max });
+    std.debug.warn("max detectable asteroids: {}\n", .{max});
 }

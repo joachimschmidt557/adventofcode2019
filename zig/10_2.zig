@@ -116,7 +116,7 @@ pub const AsteroidMap = struct {
 
     const Self = @This();
 
-    pub fn fromStream(stream: var, allocator: *Allocator) !Self {
+    pub fn fromStream(stream: anytype, allocator: *Allocator) !Self {
         var asteroids = ArrayList(Pos).init(allocator);
 
         var y: isize = 0;
